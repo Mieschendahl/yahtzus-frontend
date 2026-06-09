@@ -23,6 +23,7 @@
       placeholder="Username"
       [value]="username()"
       (input)="setUsername($event)"
+      (keydown.enter)="play()"
     />
 
     <p-button
