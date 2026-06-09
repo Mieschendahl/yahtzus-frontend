@@ -1,25 +1,34 @@
-<main class="flex-1 grid place-items-center">
-  <section class="flex flex-col items-center">
-    <div class="flex flex-col items-center">
-      <h1 class="">
+<header class="flex items-center px-6 py-4">
+  <h1 class="m-0 text-2xl font-bold">
+    Yahtzus
+  </h1>
+</header>
+
+<main class="flex flex-1 items-center justify-center px-6">
+  <section class="flex w-80 flex-col items-center gap-4">
+    <div class="text-center">
+      <h1 class="m-0 text-3xl font-bold">
         Welcome to Yahtzus
       </h1>
 
-      <p class="">
+      <p class="mt-2 text-color-secondary">
         Choose a username to play
       </p>
     </div>
 
     <input
-      class=""
+      pInputText
+      class="w-full"
+      type="text"
       placeholder="Username"
       [value]="username()"
       (input)="setUsername($event)"
-      #input
     />
 
-    <button class="" (click)="play()">
-      Play
-    </button>
+    <p-button
+      label="Play"
+      severity="secondary"
+      (onClick)="play()"
+    />
   </section>
 </main>
