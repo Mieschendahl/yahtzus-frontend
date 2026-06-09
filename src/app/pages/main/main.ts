@@ -12,7 +12,8 @@ export class Main {
 
   username = signal('');
 
-  setUsername(value: string) {
+  setUsername(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
     this.username.set(value);
   }
 
