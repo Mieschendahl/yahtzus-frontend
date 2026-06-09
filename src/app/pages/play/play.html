@@ -9,7 +9,7 @@
       ariaLabel="Menu"
       (onClick)="openMenu($event)"
     />
-    
+
     <p-menu
       #menu
       [model]="menuItems"
@@ -24,6 +24,21 @@
   </section>
 </main>
 
+<footer class="min-h-20 px-6 py-4 flex items-center justify-center">
+  <div class="flex items-center justify-center gap-3">
+    <p-button
+      label="Invite friend"
+      severity="secondary"
+      (onClick)="inviteFriend()"
+    />
+
+    <p-button
+      label="Start game"
+      (onClick)="startGame()"
+    />
+  </div>
+</footer>
+
 <p-dialog
   header="Info"
   [visible]="showInfo()"
@@ -34,3 +49,5 @@
 >
   <p>Here is some info</p>
 </p-dialog>
+
+<p-toast />
