@@ -1,9 +1,12 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, viewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { Menu, MenuModule } from 'primeng/menu';
 import { ToastModule } from 'primeng/toast';
+
+import { SocketService } from '../../services/socket/socket.service';
 
 @Component({
   selector: 'app-play',
@@ -12,10 +15,14 @@ import { ToastModule } from 'primeng/toast';
   templateUrl: './play.html',
   styleUrl: './play.css',
 })
-export class Play {
+export class Play implements OnInit {
   readonly showInfo = signal(false);
 
   readonly menu = viewChild.required<Menu>('menu');
+
+  private readonly route = inject(ActivatedRoute);
+  private readonly socketService = inject(SocketService);
+  private readonly messageService = inject(MessageService);
 
   readonly menuItems: MenuItem[] = [
     {
@@ -30,9 +37,22 @@ export class Play {
     },
   ];
 
-  private readonly messageService = inject(MessageService);
+  ngOnInit(): void {
+    const user = this.route.snapshot.queryParamMap.get('user')?.trim();
 
-  constructor() {}
+    if (!user) {
+      return;
+    }
+
+    if (this.socketService.socket.connected) {
+      // this.socketService.setUsername(user);
+      return;
+    }
+
+    this.socketService.socket.once('connect', () => {
+      // this.socketService.setUsername(user);
+    });
+  }
 
   openMenu(event: MouseEvent): void {
     this.menu().toggle(event);
