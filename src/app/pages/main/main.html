@@ -1,0 +1,25 @@
+<main class="flex-1 grid place-items-center">
+  <section class="flex flex-col items-center">
+    <div class="flex flex-col items-center">
+      <h1 class="">
+        Welcome to Yahtzus
+      </h1>
+
+      <p class="">
+        Choose a username to play
+      </p>
+    </div>
+
+    <input
+      class=""
+      placeholder="Username"
+      [value]="username()"
+      (input)="setUsername(input.value)"
+      #input
+    />
+
+    <button class="" (click)="play()">
+      Play
+    </button>
+  </section>
+</main>
