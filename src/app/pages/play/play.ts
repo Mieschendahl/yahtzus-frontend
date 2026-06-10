@@ -34,9 +34,9 @@ const ROW_NAMES = {
 
 class Cell {
   constructor(
-    text: string | number,
-    isPreview: boolean = false,
-    canSelect: boolean = false
+    public text: string | number,
+    public isPreview: boolean = false,
+    public canSelect: boolean = false
   ) { }
 }
 
@@ -58,7 +58,7 @@ export class Play implements OnInit {
 
     let cells: Cell[] = [];
     for (const rowId of ROW_ID) {
-      cells.push(ROW_NAMES[rowId]);
+      cells.push(new Cell(ROW_NAMES[rowId]));
     }
     cols.push(cells);
 
@@ -67,7 +67,7 @@ export class Play implements OnInit {
     }
 
     const userId = this.userId();
-    const isActivePlayer = game.state.kind === "playing" && game.players[game.activePlayerId].userId === userId;
+    const isActivePlayer = game.state.kind === "playing" && game.players[game.activePlayerId!].userId === userId;
 
     for (const player of game.players) {
       cells = [];
@@ -83,7 +83,7 @@ export class Play implements OnInit {
             break;
           default:
             const {value, isPreview} = player.fields[rowId];
-            cell = new Cell(value, isPreview, isPreview && isActivePlayer);
+            cell = new Cell(value ?? "", isPreview, isPreview && isActivePlayer);
         }
         cells.push(cell);
       }

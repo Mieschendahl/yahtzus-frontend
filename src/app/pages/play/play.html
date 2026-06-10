@@ -21,6 +21,22 @@
 <main class="flex-1 grid place-items-center">
   <section class="flex flex-col items-center">
     <p>Your text goes here.</p>
+      <div
+        class="cols-grid"
+        [style.grid-template-columns]="'repeat(' + cols().length + ', 12rem)'"
+      >
+        @for (col of cols(); track $index) {
+          @for (cell of col; track $index) {
+            <div
+              class="cell"
+              [class.preview]="cell.isPreview"
+              [class.selectable]="cell.canSelect"
+            >
+              {{ cell.text }}
+            </div>
+          }
+        }
+      </div>
   </section>
 </main>
 
