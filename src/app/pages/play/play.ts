@@ -7,7 +7,7 @@ import { Menu, MenuModule } from 'primeng/menu';
 import { ToastModule } from 'primeng/toast';
 
 import { SocketService } from '../../services/socket/socket.service';
-import { GameIO, ServerData } from '../../shared/socket-types';
+import { DiceIO, GameIO, ServerData } from '../../shared/socket-types';
 import { sum } from '../../lib/utils';
 
 const ROW_ID = [
@@ -40,6 +40,17 @@ class Field {
   ) { }
 }
 
+export class Dice {
+  constructor(
+    public num: number = 1,
+    public selected: boolean = true
+  ) {}
+
+  static fromIO({num, selected}: DiceIO): Dice {
+    return new Dice(num, selected);
+  }
+}
+
 @Component({
   selector: 'app-play',
   imports: [ButtonModule, DialogModule, MenuModule, ToastModule],
@@ -52,9 +63,19 @@ export class Play implements OnInit {
   readonly menu = viewChild.required<Menu>('menu');
   readonly userId = signal<string | undefined>(undefined);
   readonly game = signal<GameIO | undefined>(undefined);
+  readonly dice = computed<Dice[]>(() => {
+    const game = this.game();
+    let dices: Dice[] = [];
+    if (!game) {
+      dices = Array.from({length: 5}, () => new Dice());
+    } else {
+      dices = game.dices.map(dice => Dice.fromIO(dice));
+    }
+    return dices;
+  });
   readonly cols = computed<Field[][]>(() => {
     const game = this.game();
-    const cols = [];
+    const cols: Field[][] = [];
 
     let fields: Field[] = [];
     for (const rowId of ROW_ID) {
@@ -62,7 +83,7 @@ export class Play implements OnInit {
     }
     cols.push(fields);
 
-    if (game === undefined) {
+    if (!game) {
       return cols;
     }
 
@@ -160,6 +181,9 @@ export class Play implements OnInit {
   }
 
   startGame(): void {
-    // TODO
+    const socket = this.socketService.socket;
+    socket.emit("send", {
+      kind: "start game"
+    });
   }
 }
