@@ -6,19 +6,29 @@
 
 .cols-grid {
   display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 12rem;
+  grid-template-rows: repeat(13, auto); /* or whatever your row count is */
+  gap: 0.5rem 1rem;
 }
 
-.cell {
+.col {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: 1 / -1;
+}
+
+.field {
   padding: 0.75rem;
   border: 1px solid #ccc;
   min-height: 2.5rem;
 }
 
-.cell.preview {
+.field.preview {
   opacity: 0.4;
 }
 
-.cell.selectable:hover {
+.field.selectable:hover {
   background: rgba(255, 255, 0, 0.25);
   cursor: pointer;
 }

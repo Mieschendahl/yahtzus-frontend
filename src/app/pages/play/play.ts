@@ -32,7 +32,7 @@ const ROW_NAMES = {
   total: "Total"
 } as const;
 
-class Cell {
+class Field {
   constructor(
     public text: string | number,
     public isPreview: boolean = false,
@@ -52,42 +52,45 @@ export class Play implements OnInit {
   readonly menu = viewChild.required<Menu>('menu');
   readonly userId = signal<string | undefined>(undefined);
   readonly game = signal<GameIO | undefined>(undefined);
-  readonly cols = computed<Cell[][]>(() => {
+  readonly cols = computed<Field[][]>(() => {
     const game = this.game();
     const cols = [];
 
-    let cells: Cell[] = [];
+    let fields: Field[] = [];
     for (const rowId of ROW_ID) {
-      cells.push(new Cell(ROW_NAMES[rowId]));
+      fields.push(new Field(ROW_NAMES[rowId]));
     }
-    cols.push(cells);
+    cols.push(fields);
 
     if (game === undefined) {
       return cols;
     }
 
     const userId = this.userId();
-    const isActivePlayer = game.state.kind === "playing" && game.players[game.activePlayerId!].userId === userId;
+    const isActiveGame = game.state.kind === "playing";
+    const isActivePlayer = isActiveGame && game.players[game.activePlayerId!].userId === userId;
 
     for (const player of game.players) {
-      cells = [];
+      fields = [];
       for (const rowId of ROW_ID) {
-        let cell: Cell | undefined = undefined;
+        let field: Field | undefined = undefined;
         switch (rowId) {
           case "userId":
-            cell = new Cell(player.userId);
+            field = new Field(player.userId);
             break;
           case "total":
-            const total = sum(Object.keys(player.fields).map(key => player.fields[key]?.value ?? 0));
-            cell = new Cell(total);
+            const total = isActiveGame
+              ? sum(Object.keys(player.fields).map(key => player.fields[key]?.value ?? 0))
+              : "";
+            field = new Field(total);
             break;
           default:
             const {value, isPreview} = player.fields[rowId];
-            cell = new Cell(value ?? "", isPreview, isPreview && isActivePlayer);
+            field = new Field(value ?? "", isPreview, isPreview && isActivePlayer);
         }
-        cells.push(cell);
+        fields.push(field);
       }
-      cols.push(cells);
+      cols.push(fields);
     }
 
     return cols;
@@ -113,11 +116,6 @@ export class Play implements OnInit {
 
   ngOnInit(): void {
     const userId = this.route.snapshot.queryParamMap.get('user')?.trim();
-
-    if (!userId) {
-      return;
-    }
-
     this.userId.set(userId);
 
     const socket = this.socketService.socket;
@@ -138,9 +136,6 @@ export class Play implements OnInit {
       data: {
         userId: userId
       }
-    });
-    socket.emit("send", {
-      kind: "join players"
     });
 
     this.destroyRef.onDestroy(() => {
