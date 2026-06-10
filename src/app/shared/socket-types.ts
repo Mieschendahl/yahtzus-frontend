@@ -1,21 +1,18 @@
 export type ClientData = (
   | {
     kind: "join room";
+    data?: {
+      userId: string
+    }
+  }
+  | {
+    kind: "leave room";
     data?: undefined;
   }
 );
 
-export type ServerCb = (
-  data: 
-  | {
-    kind: "join room";
-    data?: undefined;
-  }
-) => void;
-
 export type ClientToServerEvents = {
-  send: (data: ClientData) => void,
-  sendCb: (data: ClientData, cb: ServerCb) => void
+  send: (data: ClientData) => void
 };
 
 export type ServerData = (

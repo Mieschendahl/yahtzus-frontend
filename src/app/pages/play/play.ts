@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, viewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, viewChild, ɵɵdeferHydrateOnViewport } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -38,19 +38,18 @@ export class Play implements OnInit {
   ];
 
   ngOnInit(): void {
-    const user = this.route.snapshot.queryParamMap.get('user')?.trim();
+    const userId = this.route.snapshot.queryParamMap.get('user')?.trim();
 
-    if (!user) {
+    if (!userId) {
       return;
     }
 
-    if (this.socketService.socket.connected) {
-      // this.socketService.setUsername(user);
-      return;
-    }
-
-    this.socketService.socket.once('connect', () => {
-      // this.socketService.setUsername(user);
+    const socket = this.socketService.socket;
+    socket.emit("send", {
+      kind: "join room",
+      data: {
+        userId: userId
+      }
     });
   }
 

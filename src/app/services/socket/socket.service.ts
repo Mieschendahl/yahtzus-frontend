@@ -24,7 +24,6 @@ export class SocketService {
     });
 
     constructor() {
-        console.log("starting connect")
         this.socket.on('connect', () => {
             this.connected.set(true);
         });
@@ -37,8 +36,6 @@ export class SocketService {
     }
 
     connect(): void {
-        console.log("tryingt to connect")
-
         if (!this.socket.connected) {
             this.socket.connect();
         }
