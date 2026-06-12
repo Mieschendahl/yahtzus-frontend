@@ -1,6 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
-@import "primeicons/primeicons.css";
 
 app-root {
   margin: 0;
@@ -9,6 +8,7 @@ app-root {
   display: flex;
   flex-direction: column;
 }
+
 :root {
   --ui-bg: rgba(255, 255, 255, 1);
   --ui-bg-hover: rgba(0, 0, 0, 0.04);
@@ -37,7 +37,7 @@ app-root {
   --ui-focus-ring: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
-p-button {
+button {
   border: 1px solid var(--ui-border);
   background: rgba(0, 0, 0, 0.025);
   color: var(--ui-text);
@@ -58,18 +58,18 @@ p-button {
     transform 120ms ease;
 }
 
-p-button:hover:not(:disabled) {
+button:hover:not(:disabled) {
   background: var(--ui-bg-hover);
   border-color: var(--ui-border-hover);
   box-shadow: var(--ui-shadow-button-hover);
 }
 
-p-button:active:not(:disabled) {
+button:active:not(:disabled) {
   background: var(--ui-bg-active);
   transform: translateY(1px);
 }
 
-p-button:focus-visible {
+button:focus-visible {
   outline: none;
   border-color: var(--ui-border-focus);
   box-shadow:
@@ -77,7 +77,7 @@ p-button:focus-visible {
     var(--ui-focus-ring);
 }
 
-p-button:disabled {
+button:disabled {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.08);
   color: var(--ui-text-disabled);

@@ -1,15 +1,11 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal, viewChild, ɵɵdeferHydrateOnViewport } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MenuItem, MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { Menu, MenuModule } from 'primeng/menu';
-import { ToastModule } from 'primeng/toast';
 
 import { SocketService } from '../../services/socket/socket.service';
 import { DiceIO, GameIO, ServerData } from '../../shared/socket-types';
 import { sum } from '../../lib/utils';
 import { DiceComponent } from '../../components/dice/dice';
+import { HeaderComponent } from './header/header';
 
 const ROW_ID = [
   "userId",
@@ -54,14 +50,12 @@ export class Dice {
 
 @Component({
   selector: 'app-play',
-  imports: [ButtonModule, DialogModule, MenuModule, ToastModule, DiceComponent],
-  providers: [MessageService],
+  imports: [HeaderComponent, DiceComponent],
   templateUrl: './play.html',
   styleUrl: './play.css',
 })
 export class PlayPage implements OnInit {
   readonly showInfo = signal(false);
-  readonly menu = viewChild.required<Menu>('menu');
   readonly userId = signal<string | undefined>(undefined);
   readonly game = signal<GameIO | undefined>(undefined);
   readonly dices = computed<Dice[]>(() => {
@@ -129,21 +123,20 @@ export class PlayPage implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly socketService = inject(SocketService);
-  private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly menuItems: MenuItem[] = [
-    {
-      label: 'Home',
-      icon: 'pi pi-home',
-      routerLink: '/',
-    },
-    {
-      label: 'Info',
-      icon: 'pi pi-info-circle',
-      command: () => this.showInfo.set(true),
-    },
-  ];
+  // readonly menuItems: MenuItem[] = [
+  //   {
+  //     label: 'Home',
+  //     icon: 'pi pi-home',
+  //     routerLink: '/',
+  //   },
+  //   {
+  //     label: 'Info',
+  //     icon: 'pi pi-info-circle',
+  //     command: () => this.showInfo.set(true),
+  //   },
+  // ];
 
   selectDice(index: number) {
     const dices = this.dices();
@@ -187,9 +180,9 @@ export class PlayPage implements OnInit {
     });
   }
 
-  openMenu(event: MouseEvent): void {
-    this.menu().toggle(event);
-  }
+  // openMenu(event: MouseEvent): void {
+  //   this.menu().toggle(event);
+  // }
 
   async inviteFriend(): Promise<void> {
     const url = new URL(window.location.href);
@@ -197,10 +190,10 @@ export class PlayPage implements OnInit {
 
     await navigator.clipboard.writeText(url.toString());
 
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Copied invite link',
-    });
+    // this.messageService.add({
+    //   severity: 'success',
+    //   summary: 'Copied invite link',
+    // });
   }
 
   startGame(): void {

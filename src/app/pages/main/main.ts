@@ -1,12 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-main',
-  imports: [ButtonModule, CardModule, InputTextModule],
+  imports: [],
   templateUrl: './main.html',
   styleUrl: './main.css',
 })

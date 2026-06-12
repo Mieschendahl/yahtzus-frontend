@@ -1,18 +1,4 @@
-<header class="flex items-center justify-between px-6 py-4">
-  <h1 class="m-0 text-2xl font-bold">Yahtzus</h1>
-
-  <nav>
-    <p-button
-      icon="pi pi-ellipsis-h"
-      severity="secondary"
-      variant="text"
-      ariaLabel="Menu"
-      (onClick)="openMenu($event)"
-    />
-
-    <p-menu #menu [model]="menuItems" [popup]="true" />
-  </nav>
-</header>
+<app-header></app-header>
 
 <main class="flex-1 grid place-items-center">
   <div class="flex flex-col gap-6">
@@ -47,7 +33,7 @@
   </div>
 </main>
 
-<footer class="min-h-20 px-6 py-4 flex items-center justify-center">
+<!-- <footer class="min-h-20 px-6 py-4 flex items-center justify-center">
   <div class="flex items-center justify-center gap-3">
     <p-button
       label="Invite friend"
@@ -70,4 +56,4 @@
   <p>Here is some info</p>
 </p-dialog>
 
-<p-toast />
+<p-toast /> -->

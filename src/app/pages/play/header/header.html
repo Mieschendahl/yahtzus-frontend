@@ -1,0 +1,23 @@
+<header class="flex items-center justify-between px-6 py-4">
+  <h1 class="m-0 text-2xl font-bold">Yahtzus</h1>
+
+  <nav>
+    <button
+      type="button"
+      [cdkMenuTriggerFor]="menu"
+      aria-label="Menu"
+    >
+      ⋯
+    </button>
+
+    <ng-template #menu>
+      <div cdkMenu class="flex flex-col gap-y-1 mt-1">
+        @for (item of menuItems; track item.label) {
+          <button type="button" cdkMenuItem (click)="item.action()">
+            {{ item.label }}
+          </button>
+        }
+      </div>
+    </ng-template>
+  </nav>
+</header>
