@@ -4,14 +4,10 @@ import {
   PIP_RADIUS,
   STROKE_WIDTH,
   pipToPoints
-} from "./dice.utils";
+} from "./utils";
 import {
   Component,
-  computed,
-  effect,
-  input,
-  OnDestroy,
-  signal,
+  computed, input
 } from "@angular/core";
 
 @Component({
@@ -20,62 +16,12 @@ import {
   templateUrl: './dice.html',
   styleUrl: './dice.css',
 })
-export class DiceComponent implements OnDestroy {
-  readonly value = input.required<number>();
-  readonly shuffle = input(false);
-
+export class DiceComponent {
   readonly DICE_SIZE = DICE_SIZE;
   readonly DICE_RADIUS = DICE_RADIUS;
   readonly PIP_RADIUS = PIP_RADIUS;
   readonly STROKE_WIDTH = STROKE_WIDTH;
 
-  private readonly displayValue = signal(1);
-
-  readonly rolling = signal(false);
-  readonly points = computed(() => pipToPoints(this.displayValue()));
-
-  private intervalId: ReturnType<typeof setInterval> | undefined;
-  private timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-  constructor() {
-    effect(() => {
-      const value = this.value();
-
-      this.clearTimers();
-
-      if (!this.shuffle()) {
-        this.displayValue.set(value);
-        this.rolling.set(false);
-        return;
-      }
-
-      this.rolling.set(true);
-
-      this.intervalId = setInterval(() => {
-        this.displayValue.set(Math.floor(Math.random() * 6) + 1);
-      }, 40);
-
-      this.timeoutId = setTimeout(() => {
-        this.clearTimers();
-        this.displayValue.set(value);
-        this.rolling.set(false);
-      }, 500);
-    });
-  }
-
-  ngOnDestroy() {
-    this.clearTimers();
-  }
-
-  private clearTimers() {
-    if (this.intervalId !== undefined) {
-      clearInterval(this.intervalId);
-      this.intervalId = undefined;
-    }
-
-    if (this.timeoutId !== undefined) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = undefined;
-    }
-  }
+  readonly value = input.required<number>();
+  readonly points = computed(() => pipToPoints(this.value()));
 }

@@ -6,29 +6,3 @@
 .dice {
   display: block;
 }
-
-.dice.rolling {
-  animation: dice-roll 120ms linear infinite;
-}
-
-@keyframes dice-roll {
-  0% {
-    transform: rotate(0deg) translateX(0);
-  }
-
-  25% {
-    transform: rotate(8deg) translateX(2px);
-  }
-
-  50% {
-    transform: rotate(-8deg) translateX(-2px);
-  }
-
-  75% {
-    transform: rotate(6deg) translateX(1px);
-  }
-
-  100% {
-    transform: rotate(0deg) translateX(0);
-  }
-}
