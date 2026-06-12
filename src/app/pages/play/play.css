@@ -32,3 +32,40 @@
   background: rgba(255, 255, 0, 0.25);
   cursor: pointer;
 }
+
+.scorecard {
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.scorecard td {
+  width: 12rem;
+  height: 3rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--p-surface-300);
+  text-align: center;
+  vertical-align: middle;
+  font-weight: 500;
+}
+
+.scorecard td.preview {
+  opacity: 0.55;
+}
+
+.scorecard td.selectable {
+  cursor: pointer;
+}
+
+.scorecard td.selectable:hover {
+  background: var(--p-surface-100);
+}
+
+:host-context(.dark) .scorecard td,
+:host-context(.p-dark) .scorecard td {
+  border-color: var(--p-surface-700);
+}
+
+:host-context(.dark) .scorecard td.selectable:hover,
+:host-context(.p-dark) .scorecard td.selectable:hover {
+  background: var(--p-surface-800);
+}

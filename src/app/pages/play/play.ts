@@ -94,7 +94,6 @@ export class Play implements OnInit {
     const isActiveGame = game.state.kind === "playing";
     const isActivePlayer = isActiveGame && game.players[game.activePlayerId!].userId === userId;
 
-    console.log("hello?", isActiveGame, isActivePlayer)
     for (const player of game.players) {
       fields = [];
       for (const rowId of ROW_ID) {
@@ -104,7 +103,6 @@ export class Play implements OnInit {
             field = new Field(player.userId);
             break;
           case "total":
-            console.log(isActiveGame, game)
             const total = isActiveGame
               ? sum(Object.keys(player.fields).map(key => player.fields[key]?.value ?? 0))
               : "";
@@ -121,6 +119,14 @@ export class Play implements OnInit {
 
     return cols;
   });
+  readonly rows = computed(() => {
+  const cols = this.cols();
+  if (!cols.length) return [];
+
+  return cols[0].map((_, rowIndex) =>
+    cols.map(col => col[rowIndex])
+  );
+});
 
   private readonly route = inject(ActivatedRoute);
   private readonly socketService = inject(SocketService);
