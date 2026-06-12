@@ -23,8 +23,8 @@
       @for (dice of dices(); track $index) {
         <app-dice
           [value]="dice.num"
-          (click)="selectDice($index)"
-          [class.preview]="!dice.selected"
+          (click)="selectDices($index)"
+          [class.selected]="!dice.selected"
         />
       }
     </div>

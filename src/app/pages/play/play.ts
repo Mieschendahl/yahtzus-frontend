@@ -125,17 +125,15 @@ export class PlayPage implements OnInit {
   private readonly socketService = inject(SocketService);
   private readonly destroyRef = inject(DestroyRef);
 
-  selectDice(index: number) {
+  selectDices(index: number) {
     const dices = this.dices();
-    dices[index].selected = !dices[index].selected;
     const socket = this.socketService.socket;
     socket.emit("send", {
       kind: "select dices",
       data: {
-        selected: dices.map(dice => dice.selected)
+        selected: dices.map((dice, index_) => index === index_ ? !dice.selected : dice.selected)
       }
     })
-    // console.log("great...")
   }
 
   ngOnInit(): void {
