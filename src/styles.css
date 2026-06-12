@@ -37,7 +37,7 @@ app-root {
   --ui-focus-ring: 0 0 0 3px rgba(0, 0, 0, 0.06);
 
   --ui-text: rgba(0, 0, 0, 0.88);
-  --ui-text-muted: rgba(0, 0, 0, 0.56);
+  --ui-text-muted: rgba(0, 0, 0, 0.426);
   --ui-text-disabled: rgba(0, 0, 0, 0.38);
 }
 
@@ -148,16 +148,9 @@ td {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-th {
-  font-weight: 600;
   color: var(--ui-text);
 }
 
-td {
-  color: var(--ui-text-muted);
-}
 
 tbody tr:nth-child(even) {
   background: rgba(0, 0, 0, 0.025);

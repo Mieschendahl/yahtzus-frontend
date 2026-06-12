@@ -97,12 +97,13 @@ export class PlayPage implements OnInit {
             break;
           case "total":
             const total = isActiveGame
-              ? sum(Object.keys(player.fields).map(key => player.fields[key]?.value ?? 0))
+              ? sum(Object.keys(player.fields).map(key => player.fields[key]?.isPreview ? 0 : (player.fields[key]?.value ?? 0)))
               : "";
             field = new Field(total);
             break;
           default:
-            const {value, isPreview} = player.fields[rowId];
+            const {value, isPreview} = player.fields[rowId]!;
+            // console.log(isPreview, isActivePlayer);
             field = new Field(value ?? "", isPreview, isPreview && isActivePlayer);
         }
         fields.push(field);

@@ -11,3 +11,20 @@ table {
 .selected {
   opacity: 0.5;
 }
+
+.selectable {
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.selectable:hover {
+  background: var(--ui-bg-hover);
+}
+
+.selectable:active {
+  background: var(--ui-bg-active);
+}
+
+.preview {
+  color: var(--ui-text-muted);
+}
