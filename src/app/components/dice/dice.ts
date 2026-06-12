@@ -3,7 +3,8 @@ import {
   DICE_SIZE,
   PIP_RADIUS,
   STROKE_WIDTH,
-} from "./dice-dimensions";
+  pipToPoints
+} from "./dice.utils";
 import {
   Component,
   computed,
@@ -12,7 +13,6 @@ import {
   OnDestroy,
   signal,
 } from "@angular/core";
-import { pipToPoints } from "./dice.utils";
 
 @Component({
   selector: 'app-dice',

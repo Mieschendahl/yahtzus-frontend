@@ -6,4 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './background.html',
   styleUrl: './background.css',
 })
-export class Background {}
+export class BackgroundComponent {}

@@ -10,7 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
   templateUrl: './main.html',
   styleUrl: './main.css',
 })
-export class Main {
+export class MainPage {
   private readonly router = inject(Router);
 
   readonly username = signal('');

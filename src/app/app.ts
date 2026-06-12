@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SocketService } from './services/socket/socket.service';
-import { Background } from './components/background/background';
+import { BackgroundComponent } from './components/background/background';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Background],
+  imports: [RouterOutlet, BackgroundComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

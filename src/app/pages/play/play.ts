@@ -10,7 +10,6 @@ import { SocketService } from '../../services/socket/socket.service';
 import { DiceIO, GameIO, ServerData } from '../../shared/socket-types';
 import { sum } from '../../lib/utils';
 import { DiceComponent } from '../../components/dice/dice';
-import { socket } from '../../lib/socket';
 
 const ROW_ID = [
   "userId",
@@ -60,7 +59,7 @@ export class Dice {
   templateUrl: './play.html',
   styleUrl: './play.css',
 })
-export class Play implements OnInit {
+export class PlayPage implements OnInit {
   readonly showInfo = signal(false);
   readonly menu = viewChild.required<Menu>('menu');
   readonly userId = signal<string | undefined>(undefined);
