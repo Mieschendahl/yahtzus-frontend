@@ -125,19 +125,6 @@ export class PlayPage implements OnInit {
   private readonly socketService = inject(SocketService);
   private readonly destroyRef = inject(DestroyRef);
 
-  // readonly menuItems: MenuItem[] = [
-  //   {
-  //     label: 'Home',
-  //     icon: 'pi pi-home',
-  //     routerLink: '/',
-  //   },
-  //   {
-  //     label: 'Info',
-  //     icon: 'pi pi-info-circle',
-  //     command: () => this.showInfo.set(true),
-  //   },
-  // ];
-
   selectDice(index: number) {
     const dices = this.dices();
     dices[index].selected = !dices[index].selected;
