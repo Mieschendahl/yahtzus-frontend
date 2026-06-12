@@ -2,32 +2,10 @@ import { Component, DestroyRef, OnInit, computed, inject, signal, viewChild, ÉµÉ
 import { ActivatedRoute } from '@angular/router';
 
 import { SocketService } from '../../services/socket/socket.service';
-import { DiceIO, GameIO, ServerData } from '../../shared/socket-types';
+import { DiceIO, FIELD_IDS, GameIO, ServerData } from '../../shared/socket-types';
 import { sum } from '../../lib/utils';
 import { DiceComponent } from '../../components/dice/dice';
 import { HeaderComponent } from './header/header';
-
-const ROW_ID = [
-  "userId",
-  "ones",
-  "twos",
-  "threes",
-  "fours",
-  "fives",
-  "sixes",
-  "total"
-] as const;
-
-const ROW_NAMES = {
-  userId: "",
-  ones: "Ones",
-  twos: "Twos",
-  threes: "Threes",
-  fours: "Fours",
-  fives: "Fives",
-  sixes: "Sixes",
-  total: "Total"
-} as const;
 
 class Field {
   constructor(
@@ -72,13 +50,8 @@ export class PlayPage implements OnInit {
   readonly cols = computed<Field[][]>(() => {
     const game = this.game();
     const cols: Field[][] = [];
-
-    let fields: Field[] = [];
-    for (const rowId of ROW_ID) {
-      fields.push(new Field(ROW_NAMES[rowId]));
-    }
-    cols.push(fields);
-
+    cols.push(FIELD_IDS.map(fieldId => new Field(fieldId, false, false)));
+  
     if (!game) {
       return cols;
     }
@@ -88,39 +61,20 @@ export class PlayPage implements OnInit {
     const isActivePlayer = isActiveGame && game.players[game.activePlayerId!].userId === userId;
 
     for (const player of game.players) {
-      fields = [];
-      for (const rowId of ROW_ID) {
-        let field: Field | undefined = undefined;
-        switch (rowId) {
-          case "userId":
-            field = new Field(player.userId);
-            break;
-          case "total":
-            const total = isActiveGame
-              ? sum(Object.keys(player.fields).map(key => player.fields[key]?.isPreview ? 0 : (player.fields[key]?.value ?? 0)))
-              : "";
-            field = new Field(total);
-            break;
-          default:
-            const {value, isPreview} = player.fields[rowId]!;
-            // console.log(isPreview, isActivePlayer);
-            field = new Field(value ?? "", isPreview, isPreview && isActivePlayer);
-        }
-        fields.push(field);
-      }
-      cols.push(fields);
+      cols.push(player.fields.map(({value, preview}) => {
+        return new Field(value ?? preview ?? "", preview !== undefined, preview !== undefined && isActivePlayer);
+      }));
     }
-
     return cols;
   });
   readonly rows = computed(() => {
-  const cols = this.cols();
-  if (!cols.length) return [];
+    const cols = this.cols();
+    if (!cols.length) return [];
 
-  return cols[0].map((_, rowIndex) =>
-    cols.map(col => col[rowIndex])
-  );
-});
+    return cols[0].map((_, rowIndex) =>
+      cols.map(col => col[rowIndex])
+    );
+  });
 
   private readonly route = inject(ActivatedRoute);
   private readonly socketService = inject(SocketService);
