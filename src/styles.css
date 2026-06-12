@@ -35,6 +35,10 @@ app-root {
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
 
   --ui-focus-ring: 0 0 0 3px rgba(0, 0, 0, 0.06);
+
+  --ui-text: rgba(0, 0, 0, 0.88);
+  --ui-text-muted: rgba(0, 0, 0, 0.56);
+  --ui-text-disabled: rgba(0, 0, 0, 0.38);
 }
 
 button {
