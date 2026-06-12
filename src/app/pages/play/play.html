@@ -1,27 +1,25 @@
 <app-header></app-header>
 
 <main class="flex-1 grid place-items-center">
-  <div class="flex flex-col gap-6">
-    <section class="flex flex-col items-center">
-      <table class="scorecard">
-        <tbody>
-          @for (row of rows(); track $index) {
-            <tr>
-              @for (field of row; track $index) {
-                <td
-                  [class.preview]="field.isPreview"
-                  [class.selectable]="field.canSelect"
-                >
-                  {{ field.text }}
-                </td>
-              }
-            </tr>
-          }
-        </tbody>
-      </table>
-    </section>
+  <div class="flex flex-col gap-7 items-center">
+    <table class="auto-table">
+      <tbody>
+        @for (row of rows(); track $index) {
+          <tr>
+            @for (field of row; track $index) {
+              <td
+                [class.preview]="field.isPreview"
+                [class.selectable]="field.canSelect"
+              >
+                {{ field.text }}
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
 
-    <section class="flex justify-center gap-x-2">
+    <div class="flex justify-center gap-x-2">
       @for (dice of dices(); track $index) {
         <app-dice
           [value]="dice.num"
@@ -29,11 +27,12 @@
           [class.preview]="!dice.selected"
         />
       }
-    </section>
+    </div>
   </div>
 </main>
 
-<!-- <footer class="min-h-20 px-6 py-4 flex items-center justify-center">
+<!--
+<footer class="min-h-20 px-6 py-4 flex items-center justify-center">
   <div class="flex items-center justify-center gap-3">
     <p-button
       label="Invite friend"

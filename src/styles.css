@@ -126,3 +126,39 @@ input:disabled {
   box-shadow: none;
   cursor: not-allowed;
 }
+
+table {
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--ui-text);
+}
+
+th,
+td {
+  max-width: 7.5rem;
+  padding: 0.3rem 1rem;
+  text-align: center;
+  vertical-align: middle;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+th {
+  font-weight: 600;
+  color: var(--ui-text);
+}
+
+td {
+  color: var(--ui-text-muted);
+}
+
+tbody tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.025);
+}
+
+/* tbody tr:hover {
+  background: var(--ui-bg-hover);
+} */
