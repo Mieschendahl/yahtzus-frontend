@@ -65,7 +65,7 @@ button:hover:not(:disabled) {
 }
 
 button:active:not(:disabled) {
-  background: var(--ui-bg-active);
+  /* background: var(--ui-bg-active); */
   transform: translateY(1px);
 }
 
@@ -82,7 +82,7 @@ button:disabled {
   border-color: rgba(0, 0, 0, 0.08);
   color: var(--ui-text-disabled);
   box-shadow: none;
-  cursor: not-allowed;
+  /* cursor: not-allowed; */
 }
 
 input {

@@ -189,4 +189,11 @@ export class PlayPage implements OnInit {
       kind: "start game"
     });
   }
+
+  rollDices(): void {
+    const socket = this.socketService.socket;
+    socket.emit("send", {
+      kind: "roll dices"
+    });
+  }
 }
