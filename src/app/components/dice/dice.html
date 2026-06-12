@@ -1,0 +1,27 @@
+<svg
+  class="dice"
+  [class.rolling]="rolling()"
+  [attr.width]="DICE_SIZE"
+  [attr.height]="DICE_SIZE"
+  [attr.viewBox]="'0 0 ' + DICE_SIZE + ' ' + DICE_SIZE"
+>
+  <rect
+    x="0"
+    y="0"
+    [attr.width]="DICE_SIZE"
+    [attr.height]="DICE_SIZE"
+    [attr.rx]="DICE_RADIUS"
+    [attr.ry]="DICE_RADIUS"
+    fill="#f0f0f0"
+    [attr.stroke-width]="STROKE_WIDTH"
+  />
+
+  @for (point of points(); track $index) {
+    <circle
+      [attr.cx]="point.x"
+      [attr.cy]="point.y"
+      [attr.r]="PIP_RADIUS"
+      fill="#111111"
+    />
+  }
+</svg>

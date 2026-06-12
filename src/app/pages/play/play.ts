@@ -9,6 +9,8 @@ import { ToastModule } from 'primeng/toast';
 import { SocketService } from '../../services/socket/socket.service';
 import { DiceIO, GameIO, ServerData } from '../../shared/socket-types';
 import { sum } from '../../lib/utils';
+import { DiceComponent } from '../../components/dice/dice';
+import { socket } from '../../lib/socket';
 
 const ROW_ID = [
   "userId",
@@ -53,7 +55,7 @@ export class Dice {
 
 @Component({
   selector: 'app-play',
-  imports: [ButtonModule, DialogModule, MenuModule, ToastModule],
+  imports: [ButtonModule, DialogModule, MenuModule, ToastModule, DiceComponent],
   providers: [MessageService],
   templateUrl: './play.html',
   styleUrl: './play.css',
@@ -63,7 +65,8 @@ export class Play implements OnInit {
   readonly menu = viewChild.required<Menu>('menu');
   readonly userId = signal<string | undefined>(undefined);
   readonly game = signal<GameIO | undefined>(undefined);
-  readonly dice = computed<Dice[]>(() => {
+  readonly dices = computed<Dice[]>(() => {
+    // console.log("got game")
     const game = this.game();
     let dices: Dice[] = [];
     if (!game) {
@@ -91,6 +94,7 @@ export class Play implements OnInit {
     const isActiveGame = game.state.kind === "playing";
     const isActivePlayer = isActiveGame && game.players[game.activePlayerId!].userId === userId;
 
+    console.log("hello?", isActiveGame, isActivePlayer)
     for (const player of game.players) {
       fields = [];
       for (const rowId of ROW_ID) {
@@ -100,6 +104,7 @@ export class Play implements OnInit {
             field = new Field(player.userId);
             break;
           case "total":
+            console.log(isActiveGame, game)
             const total = isActiveGame
               ? sum(Object.keys(player.fields).map(key => player.fields[key]?.value ?? 0))
               : "";
@@ -134,6 +139,19 @@ export class Play implements OnInit {
       command: () => this.showInfo.set(true),
     },
   ];
+
+  selectDice(index: number) {
+    const dices = this.dices();
+    dices[index].selected = !dices[index].selected;
+    const socket = this.socketService.socket;
+    socket.emit("send", {
+      kind: "select dices",
+      data: {
+        selected: dices.map(dice => dice.selected)
+      }
+    })
+    // console.log("great...")
+  }
 
   ngOnInit(): void {
     const userId = this.route.snapshot.queryParamMap.get('user')?.trim();
