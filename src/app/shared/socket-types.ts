@@ -1,3 +1,33 @@
+
+export const EFFECT_DATA = [
+  // {
+  //   effectId: "Extra Roll",
+  //   type: "turn effect"
+  // },
+  // {
+  //   effectId: "Extra Dice",
+  //   type: "turn effect"
+  // },
+  {
+    effectId: "Double Value",
+    type: "turn effect"
+  },
+  // {
+  //   effectId: "Roll High",
+  //   type: "roll effect"
+  // },
+  // {
+  //   effectId: "Roll Low",
+  //   type: "roll effect"
+  // }
+];
+
+export const EFFECT_IDS = EFFECT_DATA.map(({effectId}) => effectId);
+
+export function getEffectIndex(effectId: string): number {
+  return EFFECT_IDS.findIndex(effectId_ => effectId === effectId_);
+}
+
 export const FIELD_DATA = [
   {
     fieldId: "User ID",
@@ -43,12 +73,18 @@ export function getFieldIndex(fieldId: string): number {
   return FIELD_IDS.findIndex(fieldId_ => fieldId === fieldId_);
 }
 
+export type EffectData = {
+  effectId?: string,
+  status: "locked" | "unlocked" | "in use" | "used"
+};
+
 export type FieldData = {
   fieldId: string;
   index: number;
   isPrimitive: boolean;
   value?: string;
-  preview?: string;
+  isPreview: boolean;
+  effect: EffectData;
 };
 
 export type PlayerIO = {
@@ -115,6 +151,12 @@ export type ClientData = (
   }
   | {
     kind: "select field";
+    data: {
+      fieldId: string
+    }
+  }
+  | {
+    kind: "select effect";
     data: {
       fieldId: string
     }

@@ -8,7 +8,7 @@ import { HeaderComponent } from './header/header';
 
 class Field {
   constructor(
-    public text: string | number,
+    public text: string,
     public isPreview: boolean = false,
     public canSelect: boolean = false,
     public onSelect: () => void = () => {}
@@ -74,10 +74,33 @@ export class PlayPage implements OnInit {
     const userId = this.userId();
     const isActiveGame = game.state.kind === "playing";
     const isActivePlayer = isActiveGame && game.players[game.activePlayerId!].userId === userId;
+    const activePlayer = !isActiveGame ? undefined : game.players[game.activePlayerId!];
+
+    let fields: Field[];
+    if (activePlayer) {
+      fields = activePlayer.fields.map(({fieldId, effect}) => {
+        if (fieldId === "User ID")
+          return new Field("Effect");
+        const {effectId, status} = effect;
+        const isPreview = status === "locked";
+        const canSelect = status === "unlocked" && isActivePlayer && game.rollCount! > 0;
+        const onSelect = canSelect
+            ? () => socket.emit("send", {
+              kind: "select effect",
+              data: {
+                fieldId
+              }
+            })
+            : () => {};
+        return new Field(effectId ?? "", isPreview, canSelect, onSelect);
+      });
+    } else {
+      fields = FIELD_IDS.map(_ => new Field(""));
+    }
+    cols.push(fields)
 
     for (const player of game.players) {
-      cols.push(player.fields.map(({ fieldId, value, preview }) => {
-        const isPreview = preview !== undefined;
+      cols.push(player.fields.map(({ fieldId, value, isPreview }) => {
         const canSelect = isPreview && isActivePlayer;
         const onSelect = canSelect
           ? () => socket.emit("send", {
@@ -87,7 +110,7 @@ export class PlayPage implements OnInit {
             }
           })
           : () => {};
-        return new Field(value ?? preview ?? "", isPreview, canSelect, onSelect);
+        return new Field(value ?? "", isPreview, canSelect, onSelect);
       }));
     }
     return cols;
