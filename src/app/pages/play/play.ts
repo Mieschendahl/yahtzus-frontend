@@ -1,9 +1,8 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal, viewChild, ɵɵdeferHydrateOnViewport } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SocketService } from '../../services/socket/socket.service';
 import { DiceIO, FIELD_IDS, GameIO, ServerData } from '../../shared/socket-types';
-import { sum } from '../../lib/utils';
 import { DiceComponent } from '../../components/dice/dice';
 import { HeaderComponent } from './header/header';
 
@@ -11,7 +10,8 @@ class Field {
   constructor(
     public text: string | number,
     public isPreview: boolean = false,
-    public canSelect: boolean = false
+    public canSelect: boolean = false,
+    public onSelect: () => void = () => {}
   ) { }
 }
 
@@ -19,9 +19,9 @@ export class Dice {
   constructor(
     public num: number = 1,
     public selected: boolean = true
-  ) {}
+  ) { }
 
-  static fromIO({num, selected}: DiceIO): Dice {
+  static fromIO({ num, selected }: DiceIO): Dice {
     return new Dice(num, selected);
   }
 }
@@ -33,25 +33,32 @@ export class Dice {
   styleUrl: './play.css',
 })
 export class PlayPage implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly socketService = inject(SocketService);
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly showInfo = signal(false);
   readonly userId = signal<string | undefined>(undefined);
   readonly game = signal<GameIO | undefined>(undefined);
+
   readonly dices = computed<Dice[]>(() => {
     // console.log("got game")
     const game = this.game();
     let dices: Dice[] = [];
     if (!game) {
-      dices = Array.from({length: 5}, () => new Dice());
+      dices = Array.from({ length: 5 }, () => new Dice());
     } else {
       dices = game.dices.map(dice => Dice.fromIO(dice));
     }
     return dices;
   });
+
   readonly cols = computed<Field[][]>(() => {
+    const socket = this.socketService.socket;
     const game = this.game();
     const cols: Field[][] = [];
     cols.push(FIELD_IDS.map(fieldId => new Field(fieldId, false, false)));
-  
+
     if (!game) {
       return cols;
     }
@@ -61,12 +68,23 @@ export class PlayPage implements OnInit {
     const isActivePlayer = isActiveGame && game.players[game.activePlayerId!].userId === userId;
 
     for (const player of game.players) {
-      cols.push(player.fields.map(({value, preview}) => {
-        return new Field(value ?? preview ?? "", preview !== undefined, preview !== undefined && isActivePlayer);
+      cols.push(player.fields.map(({ fieldId, value, preview }) => {
+        const isPreview = preview !== undefined;
+        const canSelect = isPreview && isActivePlayer;
+        const onSelect = canSelect
+          ? () => socket.emit("send", {
+            kind: "select field",
+            data: {
+              fieldId
+            }
+          })
+          : () => {};
+        return new Field(value ?? preview ?? "", isPreview, canSelect, onSelect);
       }));
     }
     return cols;
   });
+
   readonly rows = computed(() => {
     const cols = this.cols();
     if (!cols.length) return [];
@@ -75,10 +93,6 @@ export class PlayPage implements OnInit {
       cols.map(col => col[rowIndex])
     );
   });
-
-  private readonly route = inject(ActivatedRoute);
-  private readonly socketService = inject(SocketService);
-  private readonly destroyRef = inject(DestroyRef);
 
   selectDices(index: number) {
     const dices = this.dices();

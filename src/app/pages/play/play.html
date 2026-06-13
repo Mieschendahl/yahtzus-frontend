@@ -10,6 +10,7 @@
               <td
                 [class.preview]="field.isPreview"
                 [class.selectable]="field.canSelect"
+                (click)="field.onSelect()"
               >
                 {{ field.text }}
               </td>
