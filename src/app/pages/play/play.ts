@@ -53,15 +53,23 @@ export class PlayPage implements OnInit {
     return dices;
   });
 
+  readonly isActivePlayer = computed(() => {
+    const game = this.game();
+    if (!game)
+      return false;
+    const userId = this.userId();
+    const isActiveGame = game.state.kind === "playing";
+    return isActiveGame && game.players[game.activePlayerId!].userId === userId;
+  });
+
   readonly cols = computed<Field[][]>(() => {
     const socket = this.socketService.socket;
     const game = this.game();
     const cols: Field[][] = [];
     cols.push(FIELD_IDS.map(fieldId => new Field(fieldId, false, false)));
 
-    if (!game) {
+    if (!game)
       return cols;
-    }
 
     const userId = this.userId();
     const isActiveGame = game.state.kind === "playing";

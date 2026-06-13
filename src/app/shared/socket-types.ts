@@ -1,4 +1,4 @@
-export const FIELD_ID_DATA = [
+export const FIELD_DATA = [
   {
     fieldId: "User ID",
     isPrimitive: false
@@ -37,7 +37,7 @@ export const FIELD_ID_DATA = [
   }
 ];
 
-export const FIELD_IDS = FIELD_ID_DATA.map(({fieldId}) => fieldId);
+export const FIELD_IDS = FIELD_DATA.map(({fieldId}) => fieldId);
 
 export function getFieldIndex(fieldId: string): number {
   return FIELD_IDS.findIndex(fieldId_ => fieldId === fieldId_);
