@@ -37,7 +37,6 @@ export class PlayPage implements OnInit {
   private readonly socketService = inject(SocketService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly showInfo = signal(false);
   readonly userId = signal<string | undefined>(undefined);
   readonly game = signal<GameIO | undefined>(undefined);
 
@@ -142,7 +141,11 @@ export class PlayPage implements OnInit {
 
     const socket = this.socketService.socket;
 
-    const handleData = ({ kind, data }: ServerData) => {
+
+    const onServerData = ({ kind, data }: ServerData) => {
+      if (kind === "set state") {
+        
+      }
       switch (kind) {
         case "set game":
           const { game } = data;
@@ -151,7 +154,7 @@ export class PlayPage implements OnInit {
       }
     };
 
-    socket.on("send", handleData);
+    socket.on("send", onServerData);
 
     socket.emit("send", {
       kind: "join room",
@@ -161,7 +164,7 @@ export class PlayPage implements OnInit {
     });
 
     this.destroyRef.onDestroy(() => {
-      socket.off("send", handleData);
+      socket.off("send", onServerData);
     });
   }
 

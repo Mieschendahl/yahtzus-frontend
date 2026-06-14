@@ -1,181 +1,151 @@
-
-export const EFFECT_DATA = [
-  // {
-  //   effectId: "Extra Roll",
-  //   type: "turn effect"
-  // },
-  // {
-  //   effectId: "Extra Dice",
-  //   type: "turn effect"
-  // },
-  {
-    effectId: "Double Value",
-    type: "turn effect"
-  },
-  // {
-  //   effectId: "Roll High",
-  //   type: "roll effect"
-  // },
-  // {
-  //   effectId: "Roll Low",
-  //   type: "roll effect"
-  // }
-];
-
-export const EFFECT_IDS = EFFECT_DATA.map(({effectId}) => effectId);
-
-export function getEffectIndex(effectId: string): number {
-  return EFFECT_IDS.findIndex(effectId_ => effectId === effectId_);
-}
-
-export const FIELD_DATA = [
-  {
-    fieldId: "User ID",
-    isPrimitive: false
-  },
-  {
-    fieldId: "Ones",
-    isPrimitive: true,
-  },
-  {
-    fieldId: "Twos",
-    isPrimitive: true,
-  },
-  {
-    fieldId: "Threes",
-    isPrimitive: true
-  },
-  {
-    fieldId: "Fours",
-    isPrimitive: true
-  },
-  {
-    fieldId: "Fives",
-    isPrimitive: true
-  },
-  {
-    fieldId: "Sixes",
-    isPrimitive: true
-  },
-  {
-    fieldId: "Bonus",
-    isPrimitive: false
-  },
-  {
-    fieldId: "Total",
-    isPrimitive: false
-  }
-];
-
-export const FIELD_IDS = FIELD_DATA.map(({fieldId}) => fieldId);
-
-export function getFieldIndex(fieldId: string): number {
-  return FIELD_IDS.findIndex(fieldId_ => fieldId === fieldId_);
-}
-
-export type EffectData = {
-  effectId?: string,
-  status: "locked" | "unlocked" | "in use" | "used"
-};
-
-export type FieldData = {
-  fieldId: string;
-  index: number;
-  isPrimitive: boolean;
-  value?: string;
-  isPreview: boolean;
-  effect: EffectData;
-};
-
-export type PlayerIO = {
-  userId: string;
-  fields: FieldData[];
-};
-
-export type DiceIO = {
-  num: number;
-  selected: boolean;
-}
-
-export type StateIO = (
-  | {
-    kind: "lobby",
-    data?: undefined
-  }
-  | {
-    kind: "playing"
-    data?: undefined
-  }
-);
-
-export type GameIO = {
-  players: PlayerIO[]
-  dices: DiceIO[];
-  activePlayerId?: number;
-  rollCount?: number;
-  state: StateIO;
-};
-
 export type ClientData = (
   | {
-    kind: "join room";
+    kind: "join room",
     data: {
       userId?: string
     }
   }
   | {
-    kind: "leave room";
-    data?: undefined;
+    kind: "leave room",
+    data?: undefined,
   }
   | {
-    kind: "join players";
+    kind: "join players",
     data?: undefined
   }
   | {
-    kind: "leave players";
-    data?: undefined;
+    kind: "leave players",
+    data?: undefined,
   }
   | {
-    kind: "start game";
-    data?: undefined;
+    kind: "start game",
+    data?: undefined,
   }
   | {
-    kind: "roll dices";
-    data?: undefined;
+    kind: "roll dices",
+    data?: undefined,
   }
   | {
-    kind: "select dices";
+    kind: "select dices",
     data: {
       selected: boolean[]
     }
   }
   | {
-    kind: "select field";
+    kind: "select field",
     data: {
-      fieldId: string
+      fieldId: FieldId
     }
   }
   | {
-    kind: "select effect";
+    kind: "select effect",
     data: {
-      fieldId: string
+      fieldId: FieldId
     }
   }
 );
+
+// export type ClientDataCb = (
+//   data:
+//     | {
+//       kind: "response",
+//       data: {
+//         accepted: boolean,
+//         reason?: "invalid user"
+//       }
+//     }
+// ) => void;
 
 export type ClientToServerEvents = {
   send: (data: ClientData) => void
 };
 
+export const FIELD_IDS = [
+  "ones",
+  "twos",
+  "threes"
+] as const;
+
+export type FieldId = (typeof FIELD_IDS)[number];
+
+export function getFieldIdx(fieldId: FieldId): number {
+  return FIELD_IDS.findIndex(fieldId_ => fieldId_ === fieldId);
+}
+
+export function getField(fieldId: FieldId, fields: FieldType[]): FieldType | undefined {
+  return fields[getFieldIdx(fieldId)];
+}
+
+export const EFFECT_IDS = [
+  "double",
+  "dice",
+  "roll"
+] as const;
+
+export type EffectId = (typeof EFFECT_IDS)[number];
+
+export function isEffectId(effectId: EffectId): boolean {
+  return EFFECT_IDS.some(effectId_ => effectId_ === effectId);
+}
+
+export type EffectState = "locked" | "unlocked" | "in use" | "used";
+
+export type DiceType = {
+  value: number,
+  selected: boolean,
+};
+
+export type FieldType = {
+  fieldId: FieldId,
+  fieldValue?: number,
+  effectId?: EffectId,
+  effectState?: EffectState
+};
+
+export type PlayerType = {
+  userId: string,
+  fields: FieldType[]
+};
+
+export type StateType = "lobby" | "playing";
+
+export type GameType = {
+  state: StateType,
+  userIds: string[],
+  activePlayerIdx?: number,
+  rollCount: number,
+  rollMax: number,
+  multiplier: number
+};
+
 export type ServerData = (
   | {
-    kind: "set game";
+    kind: "set game",
     data: {
-      game: GameIO
+      game: GameType
+    }
+  }
+  | {
+    kind: "set dice",
+    data: {
+      dice: DiceType[]
+    }
+  }
+  | {
+    kind: "set players",
+    data: {
+      players: PlayerType[]
+    }
+  }
+  | {
+    kind: "set field",
+    data: {
+      userId: string,
+      field: FieldType
     }
   }
 );
 
 export type ServerToClientEvents = {
-  send: (data: ServerData) => void;
+  send: (data: ServerData) => void,
 };
