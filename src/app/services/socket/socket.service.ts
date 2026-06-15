@@ -55,6 +55,7 @@ export class SocketService {
     }
 
     private handleServerData({ kind, data }: ServerData): void {
+        // console.log("server data", kind, data)
         if (kind === 'set static game') {
             this.staticGame.set(data.game);
         } else if (kind === 'set dynamic game') {
@@ -64,30 +65,20 @@ export class SocketService {
         } else if (kind === 'set players') {
             this.players.set(data.players);
         } else if (kind === 'set field') {
+            // console.log("players", this.players);
             this.players.update(players => {
-                if (!players) {
-                    return players;
-                }
+                if (!players) return players;
 
-                const player = players.find(
-                    player => player.userId === data.userId
-                );
+                return players.map(player => {
+                    if (player.userId !== data.userId) return player;
 
-                if (!player) {
-                    return players;
-                }
-
-                const fieldIdx = player.fields.findIndex(
-                    field => field.fieldId === data.field.fieldId
-                );
-
-                if (fieldIdx < 0) {
-                    return players;
-                }
-
-                player.fields[fieldIdx] = data.field;
-
-                return players;
+                    return {
+                    ...player,
+                    fields: player.fields.map(field =>
+                        field.fieldId === data.field.fieldId ? data.field : field
+                    ),
+                    };
+                });
             });
         }
     }

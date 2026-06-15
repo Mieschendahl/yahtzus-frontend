@@ -57,21 +57,52 @@ export class PlayPage implements OnInit {
 
   readonly basicCols = computed<CellUi[][]>(() => {
     const staticGame = this.staticGame();
+    const dynamicGame = this.dynamicGame();
+    const players = this.players();
     const cols: CellUi[][] = [];
     let cells = [new CellUi(prettyNone(CONDITION_HEADER_NAME))];
     COL_LAYOUT.forEach(({colName: fieldName}) => cells.push(new CellUi(fieldName)));
     cols.push(cells);
 
-    if (!staticGame)
+    if (!staticGame || !dynamicGame || !players)
       return cols;
 
-    cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
-    COL_LAYOUT.forEach(({coldId}) => {
-      const effectId = getEffectId(coldId, staticGame.effectIds);
-      const effectName = EFFECT_DATA.get(effectId);
-      cells.push(new CellUi(effectName ?? "", true, true));
-    });
-    cols.push(cells);
+    const userId = this.userId();
+    const isActiveGame = dynamicGame.state === "playing";
+    const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
+    const hasRolled = dynamicGame.rollCount > 0;
+
+    if (!isActiveGame) {
+      cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
+      COL_LAYOUT.forEach(({coldId}) => {
+        const effectId = getEffectId(coldId, staticGame.effectIds);
+        const effectName = EFFECT_DATA.get(effectId);
+        cells.push(new CellUi(effectName ?? "", true, true));
+      });
+      cols.push(cells);
+    } else {
+      const activePlayer = players.find(player => player.userId === dynamicGame.activeUserId)!;
+      cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
+      COL_LAYOUT.forEach(({coldId}) => {
+        const effectId = getEffectId(coldId, staticGame.effectIds);
+        const effectName = EFFECT_DATA.get(effectId);
+        const field = getField(coldId, activePlayer.fields);
+        const isPreview = field?.effectState === "locked";
+        const isCrossed = field?.effectState === "used";
+        const canSelect = isActivePlayer && hasRolled && field?.effectState === "unlocked";
+        // console.log("bruh", field)
+        const onSelect = canSelect
+          ? () => this.socketService.send({
+            kind: "select effect",
+            data: {
+              fieldId: field.fieldId
+            }
+          })
+          : () => {};
+        cells.push(new CellUi(effectName ?? "", isPreview, isCrossed, canSelect, onSelect));
+      });
+      cols.push(cells);
+    }
     return cols;
   });
 
@@ -101,7 +132,7 @@ export class PlayPage implements OnInit {
         const field = getField(coldId, fields_);
         if (field) {
           if (field.fieldValue !== undefined) {
-            cells.push(new CellUi(coldId));
+            cells.push(new CellUi(field.fieldValue.toString()));
           } else if (activePlayerId === userId_ && hasRolled) {
             const canSelect = isActivePlayer;
             const onSelect = canSelect
@@ -131,51 +162,6 @@ export class PlayPage implements OnInit {
     });
     
     return cols;
-    /*
-    const userId = this.userId();
-    const isActiveGame = game.state.kind === "playing";
-    const isActivePlayer = isActiveGame && game.players[game.activePlayerId!].userId === userId;
-    const activePlayer = !isActiveGame ? undefined : game.players[game.activePlayerId!];
-
-    let fields: FieldUi[];
-    if (activePlayer) {
-      fields = activePlayer.fields.map(({fieldId, effect}) => {
-        if (fieldId === "User ID")
-          return new FieldUi("Effect");
-        const {effectId, status} = effect;
-        const isPreview = status === "locked";
-        const canSelect = status === "unlocked" && isActivePlayer && game.rollCount! > 0;
-        const onSelect = canSelect
-            ? () => socket.emit("send", {
-              kind: "select effect",
-              data: {
-                fieldId
-              }
-            })
-            : () => {};
-        return new FieldUi(effectId ?? "", isPreview, canSelect, onSelect);
-      });
-    } else {
-      fields = FIELD_IDS.map(_ => new FieldUi(""));
-    }
-    cols.push(fields)
-
-    for (const player of game.players) {
-      cols.push(player.fields.map(({ fieldId, value, isPreview }) => {
-        const canSelect = isPreview && isActivePlayer;
-        const onSelect = canSelect
-          ? () => socket.emit("send", {
-            kind: "select field",
-            data: {
-              fieldId
-            }
-          })
-          : () => {};
-        return new FieldUi(value ?? "", isPreview, canSelect, onSelect);
-      }));
-    }
-    return cols;
-    */
   });
 
   readonly playerRows = computed(() => transpose(this.playerCols()));
@@ -192,14 +178,9 @@ export class PlayPage implements OnInit {
     })
   }
 
-  // openMenu(event: MouseEvent): void {
-  //   this.menu().toggle(event);
-  // }
-
   async inviteFriend(): Promise<void> {
     const url = new URL(window.location.href);
     url.searchParams.delete('user');
-
     await navigator.clipboard.writeText(url.toString());
 
     // this.messageService.add({
