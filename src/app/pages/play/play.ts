@@ -97,7 +97,6 @@ export class PlayPage implements OnInit {
       COL_LAYOUT.forEach(({coldId}) => {
         // console.log(coldId, colName);
         const field = getField(coldId, fields);
-        console.log(coldId, field)
         if (field) {
           if (field.fieldValue !== undefined) {
             cells.push(new CellUi(prettyNone(coldId)));
