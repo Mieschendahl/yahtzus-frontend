@@ -1,5 +1,5 @@
 import { prettyNone } from "../../lib/utils";
-import { EffectId, FieldId } from "../../shared/socket-types";
+import { EffectId, FIELD_IDS, FieldId, FieldType } from "../../shared/socket-types";
 
 export const COL_IDS = [
   "total"
@@ -34,7 +34,7 @@ export const EFFECT_DATA: Map<EffectId, string> = new Map([
 
 export const EFFECT_HEADER_NAME = "Effect";
 
-export const UPPER_HEADER_NAME = "Condition";
+export const CONDITION_HEADER_NAME = "Condition";
 
 export function transpose<T>(cols: T[][]): T[][] {
   if (!cols.length) return [];

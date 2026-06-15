@@ -2,10 +2,10 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SocketService } from '../../services/socket/socket.service';
-import { getEffectId, getField } from '../../shared/socket-types';
+import { getEffectId, getField, getFieldValues, getTotalValue } from '../../shared/socket-types';
 import { DiceComponent } from '../../components/dice/dice';
 import { HeaderComponent } from './header/header';
-import { COL_LAYOUT, EFFECT_HEADER_NAME, UPPER_HEADER_NAME as CONDITION_HEADER_NAME, EFFECT_DATA, transpose } from './utils';
+import { COL_LAYOUT, EFFECT_HEADER_NAME, CONDITION_HEADER_NAME, EFFECT_DATA, transpose } from './utils';
 import { prettyNone } from '../../lib/utils';
 
 class CellUi {
@@ -81,27 +81,29 @@ export class PlayPage implements OnInit {
     const staticGame = this.staticGame();
     const dynamicGame = this.dynamicGame();
     const players = this.players();
+    const dice = this.dice();
     const cols: CellUi[][] = [];
 
-    if (!staticGame || !dynamicGame || !players)
+    if (!staticGame || !dynamicGame || !players || !dice)
       return cols;
 
     const userId = this.userId();
     const isActiveGame = dynamicGame.state === "playing";
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
     const activePlayerId = dynamicGame.activeUserId;
+    const hasRolled = dynamicGame.rollCount > 0;
+    const fields = getFieldValues(dice, dynamicGame.multiplier);
 
-    players.forEach(({userId, fields}) => {
-      let cells = [new CellUi(userId)];
+    players.forEach(({userId: userId_, fields: fields_}) => {
+      let cells = [new CellUi(userId_)];
       COL_LAYOUT.forEach(({coldId}) => {
         // console.log(coldId, colName);
-        const field = getField(coldId, fields);
+        const field = getField(coldId, fields_);
         if (field) {
           if (field.fieldValue !== undefined) {
-            cells.push(new CellUi(prettyNone(coldId)));
-          } else if (activePlayerId === userId) {
-            // TODO: Calc preview
-            const canSelect = isActivePlayer && dynamicGame.rollCount > 0;
+            cells.push(new CellUi(coldId));
+          } else if (activePlayerId === userId_ && hasRolled) {
+            const canSelect = isActivePlayer;
             const onSelect = canSelect
               ? () => this.socketService.send({
                 kind: "select field",
@@ -110,13 +112,17 @@ export class PlayPage implements OnInit {
                 }
               })
               : () => {};
-            cells.push(new CellUi(prettyNone(""), true, false, canSelect, onSelect));
+            const fieldValue = getField(field.fieldId, fields)?.fieldValue!;
+            cells.push(new CellUi(fieldValue.toString(), true, false, canSelect, onSelect));
           } else {
             cells.push(new CellUi(prettyNone("")));
           }
         } else if (isActiveGame) {
-          // TODO: Calc derived
-          cells.push(new CellUi("0"));
+          if (coldId === "total") {
+            cells.push(new CellUi(getTotalValue(fields_).toString()));
+          } else {
+            cells.push(new CellUi("error"));
+          }
         } else {
           cells.push(new CellUi(prettyNone("")));
         }
