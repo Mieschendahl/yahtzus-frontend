@@ -2,13 +2,13 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { ActivatedRoute } from '@angular/router';
 
 import { SocketService } from '../../services/socket/socket.service';
-import { DiceType, EFFECT_IDS, EffectState, FIELD_IDS, getEffectId } from '../../shared/socket-types';
+import { DiceType, EFFECT_IDS, EffectState, FIELD_IDS, FieldId, getEffectId, getField } from '../../shared/socket-types';
 import { DiceComponent } from '../../components/dice/dice';
 import { HeaderComponent } from './header/header';
-import { COL_LAYOUT, EFFECT_HEADER_NAME } from './utils';
+import { COL_LAYOUT, EFFECT_HEADER_NAME, UPPER_HEADER_NAME as CONDITION_HEADER_NAME } from './utils';
 import { prettyNone } from '../../lib/utils';
 
-class FieldUi {
+class CellUi {
   constructor(
     public text: string,
     public state: "preview" | "normal" | "crossed" = "normal",
@@ -53,27 +53,70 @@ export class PlayPage implements OnInit {
     return isActivePlayer;
   });
 
-  readonly effects =  computed<FieldUi[] | undefined>(() => {
+  readonly effects =  computed<CellUi[] | undefined>(() => {
     const staticGame = this.staticGame();
     const players = this.players();
     if (!staticGame || !players)
       return;
-    const cells = [new FieldUi(EFFECT_HEADER_NAME)];
+    const cells = [new CellUi(EFFECT_HEADER_NAME)];
     staticGame.effectIds.forEach(effectId => {
-      cells.push(new FieldUi(prettyNone(effectId), "preview"))
+      cells.push(new CellUi(prettyNone(effectId), "preview"))
     });
     return cells;
   });
 
-  readonly cols = computed<FieldUi[][]>(() => {
-    const game = this.staticGame();
-    const cols: FieldUi[][] = [];
-    let cells = COL_LAYOUT.map(({colName: fieldName}) => new FieldUi(fieldName))
-    cols.push(cells)
+  readonly cols = computed<CellUi[][]>(() => {
+    const staticGame = this.staticGame();
+    const dynamicGame = this.dynamicGame();
+    const players = this.players();
+    const cols: CellUi[][] = [];
+    let cells = [new CellUi(prettyNone(CONDITION_HEADER_NAME))];
+    COL_LAYOUT.forEach(({colName: fieldName}) => cells.push(new CellUi(fieldName)));
+    cols.push(cells);
 
-    if (!game)
+    if (!staticGame)
       return cols;
 
+    cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
+    COL_LAYOUT.forEach(({coldId}) => {
+      const effectId = getEffectId(coldId, staticGame.effectIds);
+      cells.push(new CellUi(prettyNone(effectId)));
+    });
+    cols.push(cells);
+
+    if (!dynamicGame || !players)
+      return cols;
+
+    const userId = this.userId();
+    const isActiveGame = dynamicGame.state === "playing";
+    const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
+    const activePlayerId = dynamicGame.activeUserId;
+
+    players.forEach(({userId, fields}) => {
+      let cells = [new CellUi(userId)];
+      COL_LAYOUT.forEach(({coldId}) => {
+        // console.log(coldId, colName);
+        const field = getField(coldId, fields);
+        console.log(coldId, field)
+        if (field) {
+          if (field.fieldValue !== undefined) {
+            cells.push(new CellUi(prettyNone(coldId)));
+          } else if (activePlayerId === userId) {
+            // TODO: Calc preview
+            cells.push(new CellUi("0", "preview"));
+          } else {
+            cells.push(new CellUi(prettyNone("")));
+          }
+        } else if (isActiveGame) {
+          // TODO: Calc derived
+          cells.push(new CellUi("0"));
+        } else {
+          cells.push(new CellUi(prettyNone("")));
+        }
+      });
+      cols.push(cells);
+    });
+    
     return cols;
     /*
     const userId = this.userId();

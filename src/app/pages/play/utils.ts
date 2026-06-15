@@ -1,17 +1,13 @@
+import { prettyNone } from "../../lib/utils";
 import { EffectId, FieldId } from "../../shared/socket-types";
 
 export const COL_IDS = [
-  "header",
   "total"
 ];
 
 export type ColId = (typeof COL_IDS)[number];
 
-export const COL_LAYOUT: {coldId?: FieldId | ColId, colName: string}[] = [
-  {
-    coldId: "header",
-    colName: "User ID"
-  },
+export const COL_LAYOUT: {coldId: FieldId | ColId, colName: string}[] = [
   {
     coldId: "ones",
     colName: "Ones"
@@ -23,6 +19,10 @@ export const COL_LAYOUT: {coldId?: FieldId | ColId, colName: string}[] = [
   {
     coldId: "threes",
     colName: "Threes"
+  },
+  {
+    coldId: "total",
+    colName: "Total"
   }
 ] as const;
 
@@ -33,3 +33,5 @@ export const EFFECT_DATA: Map<EffectId, string> = new Map([
 ]);
 
 export const EFFECT_HEADER_NAME = "Effect";
+
+export const UPPER_HEADER_NAME = "Condition";

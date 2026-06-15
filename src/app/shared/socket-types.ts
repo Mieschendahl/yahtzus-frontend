@@ -68,11 +68,11 @@ export const FIELD_IDS = [
 
 export type FieldId = (typeof FIELD_IDS)[number];
 
-export function getFieldIdx(fieldId: FieldId): number {
+export function getFieldIdx(fieldId: string): number {
   return FIELD_IDS.findIndex(fieldId_ => fieldId_ === fieldId);
 }
 
-export function getField(fieldId: FieldId, fields: FieldType[]): FieldType | undefined {
+export function getField(fieldId: string, fields: FieldType[]): FieldType | undefined {
   return fields[getFieldIdx(fieldId)];
 }
 
@@ -85,11 +85,11 @@ export const EFFECT_IDS = [
 
 export type EffectId = (typeof EFFECT_IDS)[number];
 
-export function isEffectId(effectId: EffectId): boolean {
+export function isEffectId(effectId: string): boolean {
   return EFFECT_IDS.some(effectId_ => effectId_ === effectId);
 }
 
-export function getEffectId(fieldId: FieldId, effectIds: EffectId[]): EffectId | undefined {
+export function getEffectId(fieldId: string, effectIds: EffectId[]): EffectId | undefined {
   return effectIds[getFieldIdx(fieldId)];
 }
 
