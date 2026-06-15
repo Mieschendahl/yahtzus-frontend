@@ -82,22 +82,8 @@ export class PlayPage implements OnInit {
     const dynamicGame = this.dynamicGame();
     const players = this.players();
     const cols: CellUi[][] = [];
-    let cells = [new CellUi(prettyNone(CONDITION_HEADER_NAME))];
-    COL_LAYOUT.forEach(({colName: fieldName}) => cells.push(new CellUi(fieldName)));
-    cols.push(cells);
 
-    if (!staticGame)
-      return cols;
-
-    cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
-    COL_LAYOUT.forEach(({coldId}) => {
-      const effectId = getEffectId(coldId, staticGame.effectIds);
-      const effectName = EFFECT_DATA.get(effectId);
-      cells.push(new CellUi(effectName ?? "", true, true));
-    });
-    cols.push(cells);
-
-    if (!dynamicGame || !players)
+    if (!staticGame || !dynamicGame || !players)
       return cols;
 
     const userId = this.userId();
@@ -115,7 +101,8 @@ export class PlayPage implements OnInit {
             cells.push(new CellUi(prettyNone(coldId)));
           } else if (activePlayerId === userId) {
             // TODO: Calc preview
-            const onSelect = isActivePlayer
+            const canSelect = isActivePlayer && dynamicGame.rollCount > 0;
+            const onSelect = canSelect
               ? () => this.socketService.send({
                 kind: "select field",
                 data: {
@@ -123,9 +110,9 @@ export class PlayPage implements OnInit {
                 }
               })
               : () => {};
-            cells.push(new CellUi("", true, false, isActivePlayer, onSelect));
+            cells.push(new CellUi(prettyNone(""), true, false, canSelect, onSelect));
           } else {
-            cells.push(new CellUi(""));
+            cells.push(new CellUi(prettyNone("")));
           }
         } else if (isActiveGame) {
           // TODO: Calc derived

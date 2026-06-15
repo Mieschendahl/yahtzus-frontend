@@ -5,7 +5,7 @@
     <div class="flex gap-x-2">
       <table class="auto-table">
         <tbody>
-          @for (row of rows(); track $index) {
+          @for (row of basicRows(); track $index) {
             <tr>
               @for (cell of row; track $index) {
                 <td
@@ -23,7 +23,7 @@
       </table>
       <table class="auto-table">
         <tbody>
-          @for (row of rows(); track $index) {
+          @for (row of playerRows(); track $index) {
             <tr>
               @for (cell of row; track $index) {
                 <td
