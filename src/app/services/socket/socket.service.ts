@@ -5,11 +5,11 @@ import {
     ClientData,
     ClientToServerEvents,
     DiceType,
-    GameType,
+    DynamicGameType,
     PlayerType,
     ServerData,
     ServerToClientEvents,
-    StateType,
+    StaticGameType
 } from '../../shared/socket-types';
 
 export type AppSocket = Socket<
@@ -21,7 +21,8 @@ export type AppSocket = Socket<
 export class SocketService {
     readonly connected = signal(false);
 
-    readonly state = signal<GameType | undefined>(undefined);
+    readonly staticGame = signal<StaticGameType | undefined>(undefined);
+    readonly dynamicGame = signal<DynamicGameType | undefined>(undefined);
     readonly dice = signal<DiceType[] | undefined>(undefined);
     readonly players = signal<PlayerType[] | undefined>(undefined);
 
@@ -46,17 +47,7 @@ export class SocketService {
             this.handleServerData(data);
         });
 
-        this.connect();
-    }
-
-    connect(): void {
-        if (!this.socket.connected) {
-            this.socket.connect();
-        }
-    }
-
-    disconnect(): void {
-        this.socket.disconnect();
+        this.socket.connect();
     }
 
     send(data: ClientData): void {
@@ -64,8 +55,10 @@ export class SocketService {
     }
 
     private handleServerData({ kind, data }: ServerData): void {
-        if (kind === 'set game') {
-            this.state.set(data.game);
+        if (kind === 'set static game') {
+            this.staticGame.set(data.game);
+        } else if (kind === 'set dynamic game') {
+            this.dynamicGame.set(data.game);
         } else if (kind === 'set dice') {
             this.dice.set(data.dice);
         } else if (kind === 'set players') {

@@ -2,28 +2,18 @@ import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angula
 import { ActivatedRoute } from '@angular/router';
 
 import { SocketService } from '../../services/socket/socket.service';
-import { DiceIO, FIELD_IDS, GameIO, ServerData } from '../../shared/socket-types';
+import { DiceType, EFFECT_IDS, EffectState, FIELD_IDS, getEffectId } from '../../shared/socket-types';
 import { DiceComponent } from '../../components/dice/dice';
 import { HeaderComponent } from './header/header';
+import { COL_LAYOUT, EFFECT_HEADER_NAME } from './utils';
+import { prettyNone } from '../../lib/utils';
 
-class Field {
+class FieldUi {
   constructor(
     public text: string,
-    public isPreview: boolean = false,
-    public canSelect: boolean = false,
-    public onSelect: () => void = () => {}
+    public state: "preview" | "normal" | "crossed" = "normal",
+    public onSelect?: () => void
   ) { }
-}
-
-export class Dice {
-  constructor(
-    public num: number = 1,
-    public selected: boolean = true
-  ) { }
-
-  static fromIO({ num, selected }: DiceIO): Dice {
-    return new Dice(num, selected);
-  }
 }
 
 @Component({
@@ -35,51 +25,67 @@ export class Dice {
 export class PlayPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly socketService = inject(SocketService);
-  private readonly destroyRef = inject(DestroyRef);
+
+  ngOnInit(): void {
+    const userId = this.route.snapshot.queryParamMap.get('user')?.trim();
+    this.userId.set(userId);
+    this.socketService.send({
+      kind: "join room",
+      data: {
+        userId
+      }
+    });
+  }
 
   readonly userId = signal<string | undefined>(undefined);
-  readonly game = signal<GameIO | undefined>(undefined);
-
-  readonly dices = computed<Dice[]>(() => {
-    // console.log("got game")
-    const game = this.game();
-    let dices: Dice[] = [];
-    if (!game) {
-      dices = Array.from({ length: 5 }, () => new Dice());
-    } else {
-      dices = game.dices.map(dice => Dice.fromIO(dice));
-    }
-    return dices;
-  });
+  readonly staticGame = this.socketService.staticGame;
+  readonly dynamicGame = this.socketService.dynamicGame;
+  readonly dice = this.socketService.dice;
+  readonly players = this.socketService.players;
 
   readonly isActivePlayer = computed(() => {
-    const game = this.game();
-    if (!game)
+    const dynamicGame = this.dynamicGame();
+    if (!dynamicGame)
       return false;
     const userId = this.userId();
-    const isActiveGame = game.state.kind === "playing";
-    return isActiveGame && game.players[game.activePlayerId!].userId === userId;
+    const isActiveGame = dynamicGame.state === "playing";
+    const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
+    return isActivePlayer;
   });
 
-  readonly cols = computed<Field[][]>(() => {
-    const socket = this.socketService.socket;
-    const game = this.game();
-    const cols: Field[][] = [];
-    cols.push(FIELD_IDS.map(fieldId => new Field(fieldId, false, false)));
+  readonly effects =  computed<FieldUi[] | undefined>(() => {
+    const staticGame = this.staticGame();
+    const players = this.players();
+    if (!staticGame || !players)
+      return;
+    const cells = [new FieldUi(EFFECT_HEADER_NAME)];
+    staticGame.effectIds.forEach(effectId => {
+      cells.push(new FieldUi(prettyNone(effectId), "preview"))
+    });
+    return cells;
+  });
+
+  readonly cols = computed<FieldUi[][]>(() => {
+    const game = this.staticGame();
+    const cols: FieldUi[][] = [];
+    let cells = COL_LAYOUT.map(({colName: fieldName}) => new FieldUi(fieldName))
+    cols.push(cells)
 
     if (!game)
       return cols;
 
+    return cols;
+    /*
     const userId = this.userId();
     const isActiveGame = game.state.kind === "playing";
     const isActivePlayer = isActiveGame && game.players[game.activePlayerId!].userId === userId;
     const activePlayer = !isActiveGame ? undefined : game.players[game.activePlayerId!];
 
-    let fields: Field[];
+    let fields: FieldUi[];
     if (activePlayer) {
       fields = activePlayer.fields.map(({fieldId, effect}) => {
         if (fieldId === "User ID")
-          return new Field("Effect");
+          return new FieldUi("Effect");
         const {effectId, status} = effect;
         const isPreview = status === "locked";
         const canSelect = status === "unlocked" && isActivePlayer && game.rollCount! > 0;
@@ -91,10 +97,10 @@ export class PlayPage implements OnInit {
               }
             })
             : () => {};
-        return new Field(effectId ?? "", isPreview, canSelect, onSelect);
+        return new FieldUi(effectId ?? "", isPreview, canSelect, onSelect);
       });
     } else {
-      fields = FIELD_IDS.map(_ => new Field(""));
+      fields = FIELD_IDS.map(_ => new FieldUi(""));
     }
     cols.push(fields)
 
@@ -109,10 +115,11 @@ export class PlayPage implements OnInit {
             }
           })
           : () => {};
-        return new Field(value ?? "", isPreview, canSelect, onSelect);
+        return new FieldUi(value ?? "", isPreview, canSelect, onSelect);
       }));
     }
     return cols;
+    */
   });
 
   readonly rows = computed(() => {
@@ -125,47 +132,15 @@ export class PlayPage implements OnInit {
   });
 
   selectDices(index: number) {
-    const dices = this.dices();
-    const socket = this.socketService.socket;
-    socket.emit("send", {
+    const dice = this.dice();
+    if (!dice)
+      return;
+    this.socketService.send({
       kind: "select dices",
       data: {
-        selected: dices.map((dice, index_) => index === index_ ? !dice.selected : dice.selected)
+        selected: dice.map((dice, index_) => index === index_ ? !dice.selected : dice.selected)
       }
     })
-  }
-
-  ngOnInit(): void {
-    const userId = this.route.snapshot.queryParamMap.get('user')?.trim();
-    this.userId.set(userId);
-
-    const socket = this.socketService.socket;
-
-
-    const onServerData = ({ kind, data }: ServerData) => {
-      if (kind === "set state") {
-        
-      }
-      switch (kind) {
-        case "set game":
-          const { game } = data;
-          this.game.set(game);
-          break;
-      }
-    };
-
-    socket.on("send", onServerData);
-
-    socket.emit("send", {
-      kind: "join room",
-      data: {
-        userId: userId
-      }
-    });
-
-    this.destroyRef.onDestroy(() => {
-      socket.off("send", onServerData);
-    });
   }
 
   // openMenu(event: MouseEvent): void {

@@ -1,39 +1,56 @@
 <app-header></app-header>
 
-@if (game()) {
+@if (dynamicGame()) {
   <main class="flex-1 flex flex-col justify-center items-center gap-y-5 py-5">
-    <table class="auto-table">
-      <tbody>
-        @for (row of rows(); track $index) {
-          <tr>
-            @for (field of row; track $index) {
-              <td
-                [class.preview]="field.isPreview"
-                [class.selectable]="field.canSelect"
-                (click)="field.onSelect()"
-              >
-                {{ field.text }}
-              </td>
-            }
-          </tr>
-        }
-      </tbody>
-    </table>
+    <div class="flex gap-x-2">
+      <table class="auto-table">
+        <tbody>
+          @for (cell of effects(); track $index) {
+            <tr>
+                <td
+                  /* [class.preview]="field.isPreview"
+                  [class.selectable]="field.canSelect"
+                  (click)="field.onSelect()" */
+                >
+                  {{ cell.text }}
+                </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      <table class="auto-table">
+        <tbody>
+          @for (row of rows(); track $index) {
+            <tr>
+              @for (cell of row; track $index) {
+                <td
+                  /* [class.preview]="field.isPreview"
+                  [class.selectable]="field.canSelect"
+                  (click)="field.onSelect()" */
+                >
+                  {{ cell.text }}
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
     <div class="flex justify-center gap-x-2">
-      @for (dice of dices(); track $index) {
+      @for (dice of dice(); track $index) {
         <app-dice
-          [value]="dice.num"
+          [value]="dice.value"
           (click)="selectDices($index)"
           [class.selected]="!dice.selected"
         />
       }
     </div>
 
-    @if (game()?.state?.kind === "lobby") {
+    @if (dynamicGame()?.state === "lobby") {
       <div class="flex items-center justify-center gap-3">
         <button (click)="inviteFriend()">
-        Invite friend
+          Invite friend
         </button>
 
         <button (click)="startGame()" >
@@ -42,10 +59,10 @@
       </div>
     }
 
-    @if (game()?.state?.kind === "playing") {
-    <div class="flex items-center justify-center gap-3">
-        <button (click)="rollDices()" [disabled]="!isActivePlayer() || game()?.rollCount! >= 3">
-          Roll Dice <span [style.color]="'var(--ui-text-muted)'">{{game()?.rollCount}}/3</span>
+    @if (dynamicGame()?.state === "playing") {
+      <div class="flex items-center justify-center gap-3">
+        <button (click)="rollDices()" [disabled]="!isActivePlayer() || dynamicGame()?.rollCount! >= dynamicGame()?.rollMax!">
+          Roll Dice <span [style.color]="'var(--ui-text-muted)'">{{dynamicGame()?.rollCount}}/{{dynamicGame()?.rollMax}}</span>
         </button>
       </div>
     }
