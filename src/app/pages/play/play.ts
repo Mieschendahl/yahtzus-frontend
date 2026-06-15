@@ -72,7 +72,7 @@ export class PlayPage implements OnInit {
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
     const hasRolled = dynamicGame.rollCount > 0;
 
-    if (!isActiveGame) {
+    if (dynamicGame.activeUserId === undefined) {
       cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
       COL_LAYOUT.forEach(({coldId}) => {
         const effectId = getEffectId(coldId, staticGame.effectIds);
