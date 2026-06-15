@@ -8,23 +8,20 @@ table {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
-.selected {
-  opacity: 0.5;
-}
-
 .selectable {
   cursor: pointer;
   transition: background-color 120ms ease;
 }
 
-.selectable:hover {
-  background: var(--ui-bg-hover);
-}
-
+.selectable:hover,
 .selectable:active {
   background: var(--ui-bg-active);
 }
 
 .preview {
   color: var(--ui-text-muted);
+}
+
+.crossed {
+  text-decoration: line-through;
 }

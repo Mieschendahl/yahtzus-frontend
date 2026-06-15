@@ -11,7 +11,6 @@ app-root {
 
 :root {
   --ui-bg: rgba(255, 255, 255, 1);
-  --ui-bg-hover: rgba(0, 0, 0, 0.04);
   --ui-bg-active: rgba(0, 0, 0, 0.08);
 
   --ui-border: rgba(0, 0, 0, 0.12);
@@ -63,7 +62,7 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background: var(--ui-bg-hover);
+  background: var(--ui-bg-active);
   border-color: var(--ui-border-hover);
   box-shadow: var(--ui-shadow-button-hover);
 }
@@ -156,7 +155,3 @@ td {
 tbody tr:nth-child(even) {
   background: rgba(0, 0, 0, 0.025);
 }
-
-/* tbody tr:hover {
-  background: var(--ui-bg-hover);
-} */

@@ -35,3 +35,11 @@ export const EFFECT_DATA: Map<EffectId, string> = new Map([
 export const EFFECT_HEADER_NAME = "Effect";
 
 export const UPPER_HEADER_NAME = "Condition";
+
+export function transpose<T>(cols: T[][]): T[][] {
+  if (!cols.length) return [];
+
+  return cols[0].map((_, rowIndex) =>
+    cols.map(col => col[rowIndex])
+  );
+}

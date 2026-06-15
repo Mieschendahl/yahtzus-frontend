@@ -1,18 +1,20 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SocketService } from '../../services/socket/socket.service';
-import { DiceType, EFFECT_IDS, EffectState, FIELD_IDS, FieldId, getEffectId, getField } from '../../shared/socket-types';
+import { getEffectId, getField } from '../../shared/socket-types';
 import { DiceComponent } from '../../components/dice/dice';
 import { HeaderComponent } from './header/header';
-import { COL_LAYOUT, EFFECT_HEADER_NAME, UPPER_HEADER_NAME as CONDITION_HEADER_NAME } from './utils';
+import { COL_LAYOUT, EFFECT_HEADER_NAME, UPPER_HEADER_NAME as CONDITION_HEADER_NAME, EFFECT_DATA, transpose } from './utils';
 import { prettyNone } from '../../lib/utils';
 
 class CellUi {
   constructor(
     public text: string,
-    public state: "preview" | "normal" | "crossed" = "normal",
-    public onSelect?: () => void
+    public isPreview: boolean = false,
+    public isCrossed: boolean = false,
+    public canSelect: boolean = false,
+    public onSelect: () => void = () => {}
   ) { }
 }
 
@@ -53,19 +55,29 @@ export class PlayPage implements OnInit {
     return isActivePlayer;
   });
 
-  readonly effects =  computed<CellUi[] | undefined>(() => {
+  readonly basicCols = computed<CellUi[][]>(() => {
     const staticGame = this.staticGame();
-    const players = this.players();
-    if (!staticGame || !players)
-      return;
-    const cells = [new CellUi(EFFECT_HEADER_NAME)];
-    staticGame.effectIds.forEach(effectId => {
-      cells.push(new CellUi(prettyNone(effectId), "preview"))
+    const cols: CellUi[][] = [];
+    let cells = [new CellUi(prettyNone(CONDITION_HEADER_NAME))];
+    COL_LAYOUT.forEach(({colName: fieldName}) => cells.push(new CellUi(fieldName)));
+    cols.push(cells);
+
+    if (!staticGame)
+      return cols;
+
+    cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
+    COL_LAYOUT.forEach(({coldId}) => {
+      const effectId = getEffectId(coldId, staticGame.effectIds);
+      const effectName = EFFECT_DATA.get(effectId);
+      cells.push(new CellUi(effectName ?? "", true, true));
     });
-    return cells;
+    cols.push(cells);
+    return cols;
   });
 
-  readonly cols = computed<CellUi[][]>(() => {
+  readonly basicRows = computed(() => transpose(this.basicCols()));
+
+  readonly playerCols = computed<CellUi[][]>(() => {
     const staticGame = this.staticGame();
     const dynamicGame = this.dynamicGame();
     const players = this.players();
@@ -80,7 +92,8 @@ export class PlayPage implements OnInit {
     cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
     COL_LAYOUT.forEach(({coldId}) => {
       const effectId = getEffectId(coldId, staticGame.effectIds);
-      cells.push(new CellUi(prettyNone(effectId)));
+      const effectName = EFFECT_DATA.get(effectId);
+      cells.push(new CellUi(effectName ?? "", true, true));
     });
     cols.push(cells);
 
@@ -102,9 +115,17 @@ export class PlayPage implements OnInit {
             cells.push(new CellUi(prettyNone(coldId)));
           } else if (activePlayerId === userId) {
             // TODO: Calc preview
-            cells.push(new CellUi("0", "preview"));
+            const onSelect = isActivePlayer
+              ? () => this.socketService.send({
+                kind: "select field",
+                data: {
+                  fieldId: field.fieldId
+                }
+              })
+              : () => {};
+            cells.push(new CellUi("", true, false, isActivePlayer, onSelect));
           } else {
-            cells.push(new CellUi(prettyNone("")));
+            cells.push(new CellUi(""));
           }
         } else if (isActiveGame) {
           // TODO: Calc derived
@@ -164,14 +185,7 @@ export class PlayPage implements OnInit {
     */
   });
 
-  readonly rows = computed(() => {
-    const cols = this.cols();
-    if (!cols.length) return [];
-
-    return cols[0].map((_, rowIndex) =>
-      cols.map(col => col[rowIndex])
-    );
-  });
+  readonly playerRows = computed(() => transpose(this.playerCols()));
 
   selectDices(index: number) {
     const dice = this.dice();

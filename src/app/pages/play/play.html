@@ -3,30 +3,34 @@
 @if (dynamicGame()) {
   <main class="flex-1 flex flex-col justify-center items-center gap-y-5 py-5">
     <div class="flex gap-x-2">
-      <!-- <table class="auto-table">
-        <tbody>
-          @for (cell of effects(); track $index) {
-            <tr>
-                <td
-                  /* [class.preview]="field.isPreview"
-                  [class.selectable]="field.canSelect"
-                  (click)="field.onSelect()" */
-                >
-                  {{ cell.text }}
-                </td>
-            </tr>
-          }
-        </tbody>
-      </table> -->
       <table class="auto-table">
         <tbody>
           @for (row of rows(); track $index) {
             <tr>
               @for (cell of row; track $index) {
                 <td
-                  /* [class.preview]="field.isPreview"
-                  [class.selectable]="field.canSelect"
-                  (click)="field.onSelect()" */
+                  [class.preview]="cell.isPreview"
+                  [class.crossed]="cell.isCrossed"
+                  [class.selectable]="cell.canSelect"
+                  (click)="cell.onSelect()"
+                >
+                  {{ cell.text }}
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+      <table class="auto-table">
+        <tbody>
+          @for (row of rows(); track $index) {
+            <tr>
+              @for (cell of row; track $index) {
+                <td
+                  [class.preview]="cell.isPreview"
+                  [class.crossed]="cell.isCrossed"
+                  [class.selectable]="cell.canSelect"
+                  (click)="cell.onSelect()"
                 >
                   {{ cell.text }}
                 </td>
