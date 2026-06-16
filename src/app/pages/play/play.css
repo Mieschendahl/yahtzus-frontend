@@ -25,3 +25,7 @@ table {
 .crossed {
   text-decoration: line-through;
 }
+
+.selected {
+  opacity: 0.5;
+}
