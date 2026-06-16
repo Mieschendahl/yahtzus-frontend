@@ -50,15 +50,15 @@ export const COL_LAYOUT: {
   },
   {
     colId: "small straight",
-    colName: "Small Straight",
+    colName: "SM Straight",
   },
   {
     colId: "large straight",
-    colName: "Large Straight",
+    colName: "LG Straight",
   },
   {
     colId: "yahtzee",
-    colName: "Yahtzee",
+    colName: "Yahtzus",
   },
   {
     colId: "chance",

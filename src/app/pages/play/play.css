@@ -8,6 +8,10 @@ table {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
+td, tr {
+  min-width: 5rem;
+}
+
 .selectable {
   cursor: pointer;
   transition: background-color 120ms ease;
