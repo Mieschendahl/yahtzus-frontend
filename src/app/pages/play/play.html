@@ -6,7 +6,7 @@
       <table class="auto-table">
         <tbody>
           @for (row of basicRows(); track $index) {
-            <tr>
+            <tr [class.separator]="$index === 7">
               @for (cell of row; track $index) {
                 <td
                   [class.preview]="cell.isPreview"
@@ -24,7 +24,7 @@
       <table class="auto-table">
         <tbody>
           @for (row of playerRows(); track $index) {
-            <tr>
+            <tr [class.separator]="$index === 7">
               @for (cell of row; track $index) {
                 <td
                   [class.preview]="cell.isPreview"

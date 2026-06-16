@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SocketService } from '../../services/socket/socket.service';
-import { getEffectId, getField, getFieldValues, getTotalValue } from '../../shared/socket-types';
+import { getDerivedField, getDerivedFieldValues, getEffectId, getField, getFieldValues } from '../../shared/socket-types';
 import { DiceComponent } from '../../components/dice/dice';
 import { HeaderComponent } from './header/header';
 import { COL_LAYOUT, EFFECT_HEADER_NAME, CONDITION_HEADER_NAME, EFFECT_DATA, transpose } from './utils';
@@ -74,8 +74,8 @@ export class PlayPage implements OnInit {
 
     if (dynamicGame.activeUserId === undefined) {
       cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
-      COL_LAYOUT.forEach(({coldId}) => {
-        const effectId = getEffectId(coldId, staticGame.effectIds);
+      COL_LAYOUT.forEach(({colId}) => {
+        const effectId = getEffectId(colId, staticGame.effectIds);
         const effectName = EFFECT_DATA.get(effectId);
         cells.push(new CellUi(effectName ?? "", true, true));
       });
@@ -83,10 +83,10 @@ export class PlayPage implements OnInit {
     } else {
       const activePlayer = players.find(player => player.userId === dynamicGame.activeUserId)!;
       cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
-      COL_LAYOUT.forEach(({coldId}) => {
-        const effectId = getEffectId(coldId, staticGame.effectIds);
+      COL_LAYOUT.forEach(({colId}) => {
+        const effectId = getEffectId(colId, staticGame.effectIds);
         const effectName = EFFECT_DATA.get(effectId);
-        const field = getField(coldId, activePlayer.fields);
+        const field = getField(colId, activePlayer.fields);
         const isPreview = field?.effectState === "locked";
         const isCrossed = field?.effectState === "used";
         const canSelect = isActivePlayer && hasRolled && field?.effectState === "unlocked";
@@ -123,13 +123,14 @@ export class PlayPage implements OnInit {
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
     const activePlayerId = dynamicGame.activeUserId;
     const hasRolled = dynamicGame.rollCount > 0;
-    const fields = getFieldValues(dice, dynamicGame.multiplier);
+    const fieldValues = getFieldValues(dice, dynamicGame.multiplier);
 
     players.forEach(({userId: userId_, fields: fields_}) => {
       let cells = [new CellUi(userId_)];
-      COL_LAYOUT.forEach(({coldId}) => {
+      const derivedValues = getDerivedFieldValues(fields_);
+      COL_LAYOUT.forEach(({colId}) => {
         // console.log(coldId, colName);
-        const field = getField(coldId, fields_);
+        const field = getField(colId, fields_);
         if (field) {
           if (field.fieldValue !== undefined) {
             cells.push(new CellUi(field.fieldValue.toString()));
@@ -143,16 +144,23 @@ export class PlayPage implements OnInit {
                 }
               })
               : () => {};
-            const fieldValue = getField(field.fieldId, fields)?.fieldValue!;
+            const fieldValue = getField(field.fieldId, fieldValues)?.fieldValue!;
             cells.push(new CellUi(fieldValue.toString(), true, false, canSelect, onSelect));
           } else {
             cells.push(new CellUi(prettyNone("")));
           }
         } else if (isActiveGame) {
-          if (coldId === "total") {
-            cells.push(new CellUi(getTotalValue(fields_).toString()));
+          if (colId === "upper bonus") {
+            const bonus = getDerivedField("upper bonus", derivedValues)?.fieldValue!;
+            if (bonus > 0) {
+              cells.push(new CellUi(bonus.toString()));
+            } else {
+              const total = getDerivedField("upper total", derivedValues)?.fieldValue!;
+              cells.push(new CellUi(`${total}/63`, true));
+            }
           } else {
-            cells.push(new CellUi("error"));
+            const value = getDerivedField(colId, derivedValues)?.fieldValue!;
+            cells.push(new CellUi(value.toString()));
           }
         } else {
           cells.push(new CellUi(prettyNone("")));

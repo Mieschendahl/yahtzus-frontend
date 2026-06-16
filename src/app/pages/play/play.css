@@ -29,3 +29,7 @@ table {
 .selected {
   opacity: 0.5;
 }
+
+tr.separator > td {
+  border-bottom: 2px solid var(--ui-border);
+}

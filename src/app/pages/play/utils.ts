@@ -1,29 +1,77 @@
-import { prettyNone } from "../../lib/utils";
-import { EffectId, FIELD_IDS, FieldId, FieldType } from "../../shared/socket-types";
+import { DerivedFieldId, EffectId, FieldId } from "../../shared/socket-types";
 
-export const COL_IDS = [
-  "total"
-];
-
-export type ColId = (typeof COL_IDS)[number];
-
-export const COL_LAYOUT: {coldId: FieldId | ColId, colName: string}[] = [
+export const COL_LAYOUT: {
+  colId: FieldId | DerivedFieldId;
+  colName: string;
+}[] = [
   {
-    coldId: "ones",
-    colName: "Ones"
+    colId: "ones",
+    colName: "Ones",
   },
   {
-    coldId: "twos",
-    colName: "Twos"
+    colId: "twos",
+    colName: "Twos",
   },
   {
-    coldId: "threes",
-    colName: "Threes"
+    colId: "threes",
+    colName: "Threes",
   },
   {
-    coldId: "total",
-    colName: "Total"
-  }
+    colId: "fours",
+    colName: "Fours",
+  },
+  {
+    colId: "fives",
+    colName: "Fives",
+  },
+  {
+    colId: "sixes",
+    colName: "Sixes",
+  },
+  // {
+  //   colId: "upper total",
+  //   colName: "Upper Total",
+  // },
+  {
+    colId: "upper bonus",
+    colName: "Bonus",
+  },
+  {
+    colId: "three of a kind",
+    colName: "3 of a Kind",
+  },
+  {
+    colId: "four of a kind",
+    colName: "4 of a Kind",
+  },
+  {
+    colId: "full house",
+    colName: "Full House",
+  },
+  {
+    colId: "small straight",
+    colName: "Small Straight",
+  },
+  {
+    colId: "large straight",
+    colName: "Large Straight",
+  },
+  {
+    colId: "yahtzee",
+    colName: "Yahtzee",
+  },
+  {
+    colId: "chance",
+    colName: "Chance",
+  },
+  // {
+  //   colId: "lower total",
+  //   colName: "Lower Total",
+  // },
+  {
+    colId: "total",
+    colName: "Total",
+  },
 ] as const;
 
 export const EFFECT_DATA: Map<EffectId, string> = new Map([
