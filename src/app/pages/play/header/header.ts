@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CdkMenuModule } from '@angular/cdk/menu';
 import { Router } from '@angular/router';
+import { SocketService } from '../../../services/socket/socket.service';
 
 @Component({
   selector: 'app-header',
@@ -10,6 +11,7 @@ import { Router } from '@angular/router';
 })
 export class HeaderComponent {
   private readonly router = inject(Router);
+  private readonly socketService = inject(SocketService);
   
   readonly menuItems = [
     {
@@ -17,16 +19,18 @@ export class HeaderComponent {
       action: () => this.goHome(),
     },
     {
-      label: 'Info',
-      action: () => this.showInfo(),
-    },
+      label: "Restart",
+      action: () => this.restartGame()
+    }
   ];
 
   goHome() {
     this.router.navigateByUrl('/');
   }
 
-  showInfo() {
-    console.log('No info set yet');
+  restartGame() {
+    this.socketService.send({
+      kind: "restart game"
+    });
   }
 }

@@ -76,8 +76,12 @@ export const COL_LAYOUT: {
 
 export const EFFECT_DATA: Map<EffectId, string> = new Map([
   ["double", "2x"],
-  ["dice", "Dice"],
-  ["roll", "Roll"]
+  ["roll", "Roll"],
+  ["high", "High"],
+  ["low", "Low"],
+  ["mid", "Mid"],
+  ["pair", "Pair"],
+  ["diff", "Diff"]
 ]);
 
 export const EFFECT_HEADER_NAME = "Effect";

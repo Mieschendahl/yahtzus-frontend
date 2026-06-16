@@ -70,7 +70,6 @@ export class PlayPage implements OnInit {
     const userId = this.userId();
     const isActiveGame = dynamicGame.state === "playing";
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
-    const hasRolled = dynamicGame.rollCount > 0;
 
     if (dynamicGame.activeUserId === undefined) {
       cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
@@ -89,7 +88,7 @@ export class PlayPage implements OnInit {
         const field = getField(colId, activePlayer.fields);
         const isPreview = field?.effectState === "locked";
         const isCrossed = field?.effectState === "used";
-        const canSelect = isActivePlayer && hasRolled && field?.effectState === "unlocked";
+        const canSelect = isActivePlayer && field?.effectState === "unlocked";
         // console.log("bruh", field)
         const onSelect = canSelect
           ? () => this.socketService.send({
