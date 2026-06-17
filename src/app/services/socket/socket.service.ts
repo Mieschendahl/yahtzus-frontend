@@ -12,10 +12,24 @@ import {
     StaticGameType
 } from '../../shared/socket-types';
 
+declare const STAGE: 'local' | 'test' | 'prod';
+
 export type AppSocket = Socket<
     ServerToClientEvents,
     ClientToServerEvents
 >;
+
+const config = {
+    local: {
+        origin: 'http://localhost:4010',
+    },
+    test: {
+        origin: 'https://test.yahtzus.goolagoon.org',
+    },
+    prod: {
+        origin: 'https://yahtzus.goolagoon.org',
+    },
+}[STAGE];
 
 @Service()
 export class SocketService {
@@ -26,7 +40,7 @@ export class SocketService {
     readonly dice = signal<DiceType[] | undefined>(undefined);
     readonly players = signal<PlayerType[] | undefined>(undefined);
 
-    readonly socket: AppSocket = io('http://localhost:4010', {
+    readonly socket: AppSocket = io(config.origin, {
         path: '/api',
         autoConnect: false,
         reconnection: true,
