@@ -55,16 +55,17 @@ export class PlayPage implements OnInit {
     return isActivePlayer;
   });
 
+  readonly canRoll = computed(() => this.isActivePlayer() && this.dynamicGame()?.rollCount! < 3 && this.dice()?.some(die => die.selected));
+
   readonly basicCols = computed<CellUi[][]>(() => {
-    const staticGame = this.staticGame();
-    const dynamicGame = this.dynamicGame();
-    const players = this.players();
     const cols: CellUi[][] = [];
     let cells = [new CellUi(prettyNone(CONDITION_HEADER_NAME))];
     COL_LAYOUT.forEach(({ colName: fieldName }) => cells.push(new CellUi(fieldName)));
     cols.push(cells);
     return cols;
   });
+
+  readonly activeEffectId = computed(() => EFFECT_DATA.get(this.dynamicGame()?.activeEffect));
 
   readonly basicRows = computed(() => transpose(this.basicCols()));
 
@@ -83,7 +84,7 @@ export class PlayPage implements OnInit {
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
     const activePlayerId = dynamicGame.activeUserId;
     const hasRolled = dynamicGame.rollCount > 0;
-    const fieldValues = getFieldValues(dice, dynamicGame.multiplier);
+    const fieldValues = getFieldValues(dice);
 
     players.forEach(({ userId: userId_, fields: fields_ }) => {
       let cells = [new CellUi(userId_)];
@@ -136,7 +137,7 @@ export class PlayPage implements OnInit {
         const field = getField(colId, fields_);
         const isPreview = field?.effectState === "locked";
         const isCrossed = field?.effectState === "used";
-        const canSelect = isActivePlayer && field?.effectState === "unlocked";
+        const canSelect = isActivePlayer && field?.effectState === "unlocked" && dynamicGame.activeEffect === undefined && dynamicGame.rollCount > 0;
         // console.log("bruh", field)
         const onSelect = canSelect
           ? () => this.socketService.send({

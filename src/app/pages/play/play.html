@@ -90,9 +90,15 @@
 
     @if (dynamicGame()?.state === "playing") {
       <div class="flex items-center justify-center gap-3">
-        <button (click)="rollDices()" [disabled]="!isActivePlayer() || dynamicGame()?.rollCount! >= dynamicGame()?.rollMax!">
-          Roll Dice <span [style.color]="'var(--ui-text-muted)'">{{dynamicGame()?.rollCount}}/{{dynamicGame()?.rollMax}}</span>
+        <button (click)="rollDices()" [disabled]="!canRoll()">
+          Roll Dice <span [style.color]="'var(--ui-text-muted)'">{{dynamicGame()?.rollCount}}/{{3}}</span>
         </button>
+
+        @if (activeEffectId() !== undefined) {
+          <button disabled=true>
+            {{activeEffectId()}}
+          </button>
+        }
       </div>
     }
   </main>
