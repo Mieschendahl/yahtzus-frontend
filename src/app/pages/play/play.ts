@@ -81,7 +81,6 @@ export class PlayPage implements OnInit {
 
     const userId = this.userId();
     const isActiveGame = dynamicGame.state === "playing";
-    const isFinishedGame = dynamicGame.state === "finished";
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
     const activePlayerId = dynamicGame.activeUserId;
     const hasRolled = (dynamicGame.rollCount ?? 0) > 0;
@@ -112,7 +111,7 @@ export class PlayPage implements OnInit {
           } else {
             cells.push(new CellUi(prettyNone("")));
           }
-        } else if (isActiveGame || isFinishedGame) {
+        } else {
           if (colId === "upper bonus") {
             const bonus = getDerivedField("upper bonus", derivedValues)?.fieldValue!;
             if (bonus > 0) {
@@ -125,8 +124,6 @@ export class PlayPage implements OnInit {
             const value = getDerivedField(colId, derivedValues)?.fieldValue!;
             cells.push(new CellUi(value.toString()));
           }
-        } else {
-          cells.push(new CellUi(prettyNone("")));
         }
       });
       pair.push(cells);
