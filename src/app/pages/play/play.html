@@ -1,13 +1,14 @@
 <app-header></app-header>
 
 @if (dynamicGame()) {
-  <main class="flex-1 flex flex-col justify-center items-center gap-y-5 py-5">
+  <main class="flex-1 flex flex-col justify-center items-center gap-y-5">
     <div class="flex gap-x-2">
-      <div class="flex flex-col gap-y-2">
+      <div class="flex flex-col items-center">
+        {{ '\u00A0' }}
         <table class="auto-table">
           <tbody>
-            @for (row of basicRows().slice(0, 8); track $index) {
-              <tr>
+            @for (row of basicRows().slice(1); track $index) {
+              <tr [class.separator]="$index === 5 || $index === 6 || $index == 13">
                 @for (cell of row; track $index) {
                   <td
                     [class.preview]="cell.isPreview"
@@ -15,26 +16,7 @@
                     [class.selectable]="cell.canSelect"
                     (click)="cell.onSelect()"
                   >
-                    {{ cell.text || '\u00A0' }}
-                  </td>
-                }
-              </tr>
-            }
-          </tbody>
-        </table>
-
-        <table class="auto-table">
-          <tbody>
-            @for (row of basicRows().slice(8); track $index) {
-              <tr>
-                @for (cell of row; track $index) {
-                  <td
-                    [class.preview]="cell.isPreview"
-                    [class.crossed]="cell.isCrossed"
-                    [class.selectable]="cell.canSelect"
-                    (click)="cell.onSelect()"
-                  >
-                    {{ cell.text || '\u00A0' }}
+                    {{ cell.text }}
                   </td>
                 }
               </tr>
@@ -43,44 +25,31 @@
         </table>
       </div>
 
-      <div class="flex flex-col gap-y-2">
-        <table class="auto-table">
-          <tbody>
-            @for (row of playerRows().slice(0, 8); track $index) {
-              <tr>
-                @for (cell of row; track $index) {
-                  <td
-                    [class.preview]="cell.isPreview"
-                    [class.crossed]="cell.isCrossed"
-                    [class.selectable]="cell.canSelect"
-                    (click)="cell.onSelect()"
-                  >
-                    {{ cell.text || '\u00A0' }}
-                  </td>
+      <div class="flex gap-x-2">
+        @for (pair of playerRows(); track $index) {
+          <div class="flex flex-col items-center">
+            {{pair[0][0].text}}
+            <table class="auto-table">
+              <tbody>
+                @for (row of pair.slice(1); track $index) {
+                  <tr [class.separator]="$index === 5 || $index === 6 || $index == 13">
+                    @for (cell of row; track $index) {
+                      <td
+                        [class.preview]="cell.isPreview"
+                        [class.crossed]="cell.isCrossed"
+                        [class.selectable]="cell.canSelect"
+                        [class.vertical-separator]="$index === 0"
+                        (click)="cell.onSelect()"
+                      >
+                        {{ cell.text }}
+                      </td>
+                    }
+                  </tr>
                 }
-              </tr>
-            }
-          </tbody>
-        </table>
-
-        <table class="auto-table">
-          <tbody>
-            @for (row of playerRows().slice(8); track $index) {
-              <tr>
-                @for (cell of row; track $index) {
-                  <td
-                    [class.preview]="cell.isPreview"
-                    [class.crossed]="cell.isCrossed"
-                    [class.selectable]="cell.canSelect"
-                    (click)="cell.onSelect()"
-                  >
-                    {{ cell.text || '\u00A0' }}
-                  </td>
-                }
-              </tr>
-            }
-          </tbody>
-        </table>
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
     </div>
 

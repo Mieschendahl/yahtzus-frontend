@@ -63,56 +63,17 @@ export class PlayPage implements OnInit {
     let cells = [new CellUi(prettyNone(CONDITION_HEADER_NAME))];
     COL_LAYOUT.forEach(({colName: fieldName}) => cells.push(new CellUi(fieldName)));
     cols.push(cells);
-
-    if (!staticGame || !dynamicGame || !players)
-      return cols;
-
-    const userId = this.userId();
-    const isActiveGame = dynamicGame.state === "playing";
-    const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
-
-    if (dynamicGame.activeUserId === undefined) {
-      cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
-      COL_LAYOUT.forEach(({colId}) => {
-        const effectId = getEffectId(colId, staticGame.effectIds);
-        const effectName = EFFECT_DATA.get(effectId);
-        cells.push(new CellUi(effectName ?? "", true, true));
-      });
-      cols.push(cells);
-    } else {
-      const activePlayer = players.find(player => player.userId === dynamicGame.activeUserId)!;
-      cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
-      COL_LAYOUT.forEach(({colId}) => {
-        const effectId = getEffectId(colId, staticGame.effectIds);
-        const effectName = EFFECT_DATA.get(effectId);
-        const field = getField(colId, activePlayer.fields);
-        const isPreview = field?.effectState === "locked";
-        const isCrossed = field?.effectState === "used";
-        const canSelect = isActivePlayer && field?.effectState === "unlocked";
-        // console.log("bruh", field)
-        const onSelect = canSelect
-          ? () => this.socketService.send({
-            kind: "select effect",
-            data: {
-              fieldId: field.fieldId
-            }
-          })
-          : () => {};
-        cells.push(new CellUi(effectName ?? "", isPreview, isCrossed, canSelect, onSelect));
-      });
-      cols.push(cells);
-    }
     return cols;
   });
 
   readonly basicRows = computed(() => transpose(this.basicCols()));
 
-  readonly playerCols = computed<CellUi[][]>(() => {
+  readonly playerCols = computed<CellUi[][][]>(() => {
     const staticGame = this.staticGame();
     const dynamicGame = this.dynamicGame();
     const players = this.players();
     const dice = this.dice();
-    const cols: CellUi[][] = [];
+    const cols: CellUi[][][] = [];
 
     if (!staticGame || !dynamicGame || !players || !dice)
       return cols;
@@ -127,6 +88,7 @@ export class PlayPage implements OnInit {
     players.forEach(({userId: userId_, fields: fields_}) => {
       let cells = [new CellUi(userId_)];
       const derivedValues = getDerivedFieldValues(fields_);
+      const pair: CellUi[][] = [];
       COL_LAYOUT.forEach(({colId}) => {
         // console.log(coldId, colName);
         const field = getField(colId, fields_);
@@ -165,13 +127,36 @@ export class PlayPage implements OnInit {
           cells.push(new CellUi(prettyNone("")));
         }
       });
-      cols.push(cells);
+      pair.push(cells);
+
+      cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
+      COL_LAYOUT.forEach(({colId}) => {
+        const effectId = getEffectId(colId, staticGame.effectIds);
+        const effectName = EFFECT_DATA.get(effectId);
+        const field = getField(colId, fields_);
+        const isPreview = field?.effectState === "locked";
+        const isCrossed = field?.effectState === "used";
+        const canSelect = isActivePlayer && field?.effectState === "unlocked";
+        // console.log("bruh", field)
+        const onSelect = canSelect
+          ? () => this.socketService.send({
+            kind: "select effect",
+            data: {
+              fieldId: field.fieldId
+            }
+          })
+          : () => {};
+        cells.push(new CellUi(effectName ?? "", isPreview, isCrossed, canSelect, onSelect));
+      });
+      pair.push(cells);
+
+      cols.push(pair);
     });
     
     return cols;
   });
 
-  readonly playerRows = computed(() => transpose(this.playerCols()));
+  readonly playerRows = computed(() => this.playerCols().map(cols => transpose(cols)));
 
   selectDices(index: number) {
     const dice = this.dice();

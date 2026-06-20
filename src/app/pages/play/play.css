@@ -37,3 +37,7 @@ td, tr {
 tr.separator > td {
   border-bottom: 2px solid var(--ui-border);
 }
+
+td.vertical-separator {
+  border-right: 2px solid rgba(255, 255, 255, 0.1);;
+}
