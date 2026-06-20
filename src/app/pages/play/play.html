@@ -1,103 +1,103 @@
 <app-header></app-header>
 
 @if (dynamicGame()) {
-  <main class="flex-1 rounded-2xl overflow-hidden">
-    <div class="h-full overflow-auto flex flex-col justify-start items-starts gap-2 pb-4 px-4">
-      @if (dynamicGame()?.state === "lobby") {
-        <div class="flex items-center justify-start gap-2 mx-auto">
-          <button (click)="inviteFriend()">
-            Invite friend
+  <main class="flex-1 rounded-2xl h-full flex flex-col justify-start items-starts gap-2 px-4 overflow-hidden">
+    @if (dynamicGame()?.state === "lobby") {
+      <div class="flex items-center justify-start gap-2 mx-auto">
+        <button (click)="inviteFriend()">
+          Invite friend
+        </button>
+
+        <button (click)="startGame()" >
+          Start game
+        </button>
+      </div>
+    }
+
+    @if (dynamicGame()?.state === "playing") {
+      <div class="flex items-center justify-start gap-2 mx-auto">
+        <button (click)="rollDices()" [disabled]="!canRoll()" class="flex-none">
+          Roll Dice <span [style.color]="'var(--ui-text-muted)'">{{dynamicGame()?.rollCount}}/{{3}}</span>
+        </button>
+
+        @if (activeEffectId() !== undefined) {
+          <button disabled=true>
+            {{activeEffectId()}}
           </button>
-
-          <button (click)="startGame()" >
-            Start game
-          </button>
-        </div>
-      }
-
-      @if (dynamicGame()?.state === "playing") {
-        <div class="flex items-center justify-start gap-2 mx-auto">
-          <button (click)="rollDices()" [disabled]="!canRoll()" class="flex-none">
-            Roll Dice <span [style.color]="'var(--ui-text-muted)'">{{dynamicGame()?.rollCount}}/{{3}}</span>
-          </button>
-
-          @if (activeEffectId() !== undefined) {
-            <button disabled=true>
-              {{activeEffectId()}}
-            </button>
-          }
-        </div>
-      }
-
-      <div class="flex justify-start gap-2 mx-auto">
-        @for (dice of dice(); track $index) {
-          <app-dice
-            [value]="dice.value"
-            (click)="selectDices($index)"
-            [class.selected]="!dice.selected"
-          />
         }
       </div>
+    }
 
-      <div class="flex gap-2 mx-auto">
-        <table class="auto-table">
-          <tbody>
-            @for (row of basicRows(); track $index; let rowIndex = $index) {
-              <tr [class.separator]="isSeperatorRow(rowIndex)">
-                @for (cell of row; track $index) {
-                  <td
-                    [class.preview]="cell.isPreview"
-                    [class.crossed]="cell.isCrossed"
-                    [class.selectable]="cell.canSelect"
-                    (click)="cell.onSelect()"
-                  >
-                    {{ cell.text }}
-                  </td>
-                }
-              </tr>
-            }
-          </tbody>
-        </table>
+    <div class="flex justify-start gap-2 mx-auto">
+      @for (dice of dice(); track $index) {
+        <app-dice
+          [value]="dice.value"
+          (click)="selectDices($index)"
+          [class.selected]="!dice.selected"
+        />
+      }
+    </div>
 
-        <div class="flex gap-2">
-          @for (pair of playerRows(); track $index) {
-            <div class="flex flex-col items-center">
-              <!-- {{pair[0][0].text}} -->
-              <table class="auto-table">
-                <tbody>
-                  @for (row of pair; track $index; let rowIndex = $index) {
-                    <tr [class.separator]="isSeperatorRow(rowIndex)">
-                      @for (cell of row; track $index; let colIndex = $index) {
-                        @if (isWideRow(rowIndex) && colIndex === 0) {
-                          <td
-                            colspan="2"
-                            class="wide-cell"
-                            [class.preview]="cell.isPreview"
-                            [class.crossed]="cell.isCrossed"
-                            [class.selectable]="cell.canSelect"
-                            (click)="cell.onSelect()"
-                          >
-                            {{ cell.text }}
-                          </td>
-                        } @else if (!(isWideRow(rowIndex) && colIndex === 1)) {
-                          <td
-                            [class.preview]="cell.isPreview"
-                            [class.crossed]="cell.isCrossed"
-                            [class.selectable]="cell.canSelect"
-                            [class.vertical-separator]="colIndex === 0"
-                            (click)="cell.onSelect()"
-                          >
-                            {{ cell.text }}
-                          </td>
-                        }
-                      }
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+    <div class="w-full overflow-auto pb-4">
+      <div class="w-fit flex mx-auto gap-2">
+      <table class="auto-table">
+        <tbody>
+          @for (row of basicRows(); track $index; let rowIndex = $index) {
+            <tr [class.separator]="isSeperatorRow(rowIndex)">
+              @for (cell of row; track $index) {
+                <td
+                  [class.preview]="cell.isPreview"
+                  [class.crossed]="cell.isCrossed"
+                  [class.selectable]="cell.canSelect"
+                  (click)="cell.onSelect()"
+                >
+                  {{ cell.text }}
+                </td>
+              }
+            </tr>
           }
-        </div>
+        </tbody>
+      </table>
+
+      <div class="flex gap-2">
+        @for (pair of playerRows(); track $index) {
+          <div class="flex flex-col items-center">
+            <!-- {{pair[0][0].text}} -->
+            <table class="auto-table">
+              <tbody>
+                @for (row of pair; track $index; let rowIndex = $index) {
+                  <tr [class.separator]="isSeperatorRow(rowIndex)">
+                    @for (cell of row; track $index; let colIndex = $index) {
+                      @if (isWideRow(rowIndex) && colIndex === 0) {
+                        <td
+                          colspan="2"
+                          class="wide-cell"
+                          [class.preview]="cell.isPreview"
+                          [class.crossed]="cell.isCrossed"
+                          [class.selectable]="cell.canSelect"
+                          (click)="cell.onSelect()"
+                        >
+                          {{ cell.text }}
+                        </td>
+                      } @else if (!(isWideRow(rowIndex) && colIndex === 1)) {
+                        <td
+                          [class.preview]="cell.isPreview"
+                          [class.crossed]="cell.isCrossed"
+                          [class.selectable]="cell.canSelect"
+                          [class.vertical-separator]="colIndex === 0"
+                          (click)="cell.onSelect()"
+                        >
+                          {{ cell.text }}
+                        </td>
+                      }
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
       </div>
     </div>
   </main>
