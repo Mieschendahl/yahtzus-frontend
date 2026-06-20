@@ -15,12 +15,16 @@ export class HeaderComponent {
   
   readonly menuItems = [
     {
-      label: 'Home',
+      label: 'Go Home',
       action: () => this.goHome(),
     },
     {
-      label: "Restart",
+      label: "Restart Game",
       action: () => this.restartGame()
+    },
+    {
+      label: "Reset Room",
+      action: () => this.resetRoom()
     }
   ];
 
@@ -31,6 +35,12 @@ export class HeaderComponent {
   restartGame() {
     this.socketService.send({
       kind: "restart game"
+    });
+  }
+
+  resetRoom() {
+    this.socketService.send({
+      kind: "reset room"
     });
   }
 }
