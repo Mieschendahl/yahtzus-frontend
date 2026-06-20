@@ -35,9 +35,9 @@ td, tr {
 }
 
 tr.separator > td {
-  border-bottom: 2px solid var(--ui-border);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
 }
 
 td.vertical-separator {
-  border-right: 2px solid rgba(255, 255, 255, 0.1);;
+  border-right: 2px solid rgba(0, 0, 0, 0.05);
 }

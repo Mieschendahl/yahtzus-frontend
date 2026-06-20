@@ -84,9 +84,9 @@ export const EFFECT_DATA: Map<EffectId, string> = new Map([
   ["diff", "Diff"]
 ]);
 
-export const EFFECT_HEADER_NAME = "Effect";
+export const EFFECT_HEADER_NAME = "";
 
-export const CONDITION_HEADER_NAME = "Condition";
+export const CONDITION_HEADER_NAME = "";
 
 export function transpose<T>(cols: T[][]): T[][] {
   if (!cols.length) return [];

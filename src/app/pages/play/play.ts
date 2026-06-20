@@ -14,7 +14,7 @@ class CellUi {
     public isPreview: boolean = false,
     public isCrossed: boolean = false,
     public canSelect: boolean = false,
-    public onSelect: () => void = () => {}
+    public onSelect: () => void = () => { }
   ) { }
 }
 
@@ -61,7 +61,7 @@ export class PlayPage implements OnInit {
     const players = this.players();
     const cols: CellUi[][] = [];
     let cells = [new CellUi(prettyNone(CONDITION_HEADER_NAME))];
-    COL_LAYOUT.forEach(({colName: fieldName}) => cells.push(new CellUi(fieldName)));
+    COL_LAYOUT.forEach(({ colName: fieldName }) => cells.push(new CellUi(fieldName)));
     cols.push(cells);
     return cols;
   });
@@ -85,11 +85,11 @@ export class PlayPage implements OnInit {
     const hasRolled = dynamicGame.rollCount > 0;
     const fieldValues = getFieldValues(dice, dynamicGame.multiplier);
 
-    players.forEach(({userId: userId_, fields: fields_}) => {
+    players.forEach(({ userId: userId_, fields: fields_ }) => {
       let cells = [new CellUi(userId_)];
       const derivedValues = getDerivedFieldValues(fields_);
       const pair: CellUi[][] = [];
-      COL_LAYOUT.forEach(({colId}) => {
+      COL_LAYOUT.forEach(({ colId }) => {
         // console.log(coldId, colName);
         const field = getField(colId, fields_);
         if (field) {
@@ -104,7 +104,7 @@ export class PlayPage implements OnInit {
                   fieldId: field.fieldId
                 }
               })
-              : () => {};
+              : () => { };
             const fieldValue = getField(field.fieldId, fieldValues)?.fieldValue!;
             cells.push(new CellUi(fieldValue.toString(), true, false, canSelect, onSelect));
           } else {
@@ -130,7 +130,7 @@ export class PlayPage implements OnInit {
       pair.push(cells);
 
       cells = [new CellUi(prettyNone(EFFECT_HEADER_NAME))];
-      COL_LAYOUT.forEach(({colId}) => {
+      COL_LAYOUT.forEach(({ colId }) => {
         const effectId = getEffectId(colId, staticGame.effectIds);
         const effectName = EFFECT_DATA.get(effectId);
         const field = getField(colId, fields_);
@@ -145,14 +145,14 @@ export class PlayPage implements OnInit {
               fieldId: field.fieldId
             }
           })
-          : () => {};
+          : () => { };
         cells.push(new CellUi(effectName ?? "", isPreview, isCrossed, canSelect, onSelect));
       });
       pair.push(cells);
 
       cols.push(pair);
     });
-    
+
     return cols;
   });
 
@@ -193,5 +193,17 @@ export class PlayPage implements OnInit {
     socket.emit("send", {
       kind: "roll dices"
     });
+  }
+
+  readonly seperatorRows = [0, 6, 7, 14];
+
+  isSeperatorRow(rowIndex: number): boolean {
+    return this.seperatorRows.includes(rowIndex);
+  }
+
+  readonly wideRows = [0, 7, 15];
+
+  isWideRow(rowIndex: number): boolean {
+    return this.wideRows.includes(rowIndex);
   }
 }
