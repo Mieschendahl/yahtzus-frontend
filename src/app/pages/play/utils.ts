@@ -76,10 +76,14 @@ export const COL_LAYOUT: {
 
 export const EFFECT_DATA: Map<EffectId, string | undefined> = new Map([
   [undefined, undefined],
+  ["inc", "Inc"],
+  ["dec", "Dec"],
+  ["flip", "Flip"],
   ["high", "High"],
   ["low", "Low"],
   ["not", "Not"],
-  ["flip", "Flip"],
+  ["even", "Even"],
+  ["odd", "Odd"],
   ["pair", "Pair"],
 ]);
 

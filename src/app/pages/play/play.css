@@ -10,8 +10,9 @@ table {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
-td, tr {
+.cell {
   min-width: 5rem;
+  max-width: 5rem;
 }
 
 .selectable {
