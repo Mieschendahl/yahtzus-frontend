@@ -137,7 +137,7 @@ export class PlayPage implements OnInit {
         const field = getField(colId, fields_);
         const isPreview = field?.effectState === "locked";
         const isCrossed = field?.effectState === "used";
-        const canSelect = isActivePlayer && field?.effectState === "unlocked" && dynamicGame.activeEffect === undefined && dynamicGame.rollCount > 0;
+        const canSelect = isActivePlayer && field?.effectState === "unlocked" && dynamicGame.activeEffect === undefined && dynamicGame.rollCount > 0 && dynamicGame.rollCount < 3;
         // console.log("bruh", field)
         const onSelect = canSelect
           ? () => this.socketService.send({
