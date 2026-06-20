@@ -204,7 +204,7 @@ export class PlayPage implements OnInit {
     url.searchParams.delete('user');
     await navigator.clipboard.writeText(url.toString());
 
-    alert("Copied invite link");
+    alert("copied invite link");
     // this.messageService.add({
     //   severity: 'success',
     //   summary: 'Copied invite link',
