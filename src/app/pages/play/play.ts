@@ -1,8 +1,8 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SocketService } from '../../services/socket/socket.service';
-import { getDerivedField, getDerivedFieldValues, getEffectId, getField, getFieldValues } from '../../shared/socket-types';
+import { DynamicGameType, getDerivedField, getDerivedFieldValues, getEffectId, getField, getFieldValues } from '../../shared/socket-types';
 import { DiceComponent } from '../../components/dice/dice';
 import { HeaderComponent } from './header/header';
 import { COL_LAYOUT, EFFECT_HEADER_NAME, CONDITION_HEADER_NAME, EFFECT_DATA, transpose } from './utils';
@@ -83,7 +83,7 @@ export class PlayPage implements OnInit {
     const isActiveGame = dynamicGame.state === "playing";
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
     const activePlayerId = dynamicGame.activeUserId;
-    const hasRolled = dynamicGame.rollCount > 0;
+    const hasRolled = (dynamicGame.rollCount ?? 0) > 0;
     const fieldValues = getFieldValues(dice);
 
     players.forEach(({ userId: userId_, fields: fields_ }) => {
@@ -137,7 +137,7 @@ export class PlayPage implements OnInit {
         const field = getField(colId, fields_);
         const isPreview = field?.effectState === "locked";
         const isCrossed = field?.effectState === "used";
-        const canSelect = isActivePlayer && field?.effectState === "unlocked" && dynamicGame.activeEffect === undefined && dynamicGame.rollCount > 0 && dynamicGame.rollCount < 3;
+        const canSelect = isActivePlayer && field?.effectState === "unlocked" && dynamicGame.activeEffect === undefined && (dynamicGame.rollCount ?? 0) > 0 && (dynamicGame?.rollCount ?? 0) < 3;
         // console.log("bruh", field)
         const onSelect = canSelect
           ? () => this.socketService.send({
@@ -158,6 +158,36 @@ export class PlayPage implements OnInit {
   });
 
   readonly playerRows = computed(() => this.playerCols().map(cols => transpose(cols)));
+
+  private readonly nextRollSound = new Audio('/assets/sounds/dice-roll-wood.wav');
+  private readonly nextTurnSound = new Audio('/assets/sounds/player-whoosh.wav');
+  private readonly effectUsedSound = new Audio('/assets/sounds/effect-used.wav');
+  private readonly gameFinishedSound = new Audio('/assets/sounds/game-finished.wav');
+
+  constructor() {
+    effect(() => {
+      const dynamicGame = this.dynamicGame();
+      if (!dynamicGame)
+        return;
+
+      if (dynamicGame.event === "next roll") {
+        this.playSound(this.nextRollSound);
+      } else if (dynamicGame.event === "next turn") {
+        this.playSound(this.nextTurnSound);
+      } else if (dynamicGame.event === "effect used") {
+        this.playSound(this.effectUsedSound);
+      } else if (dynamicGame.event === "game finished") {
+        this.playSound(this.gameFinishedSound);
+      }
+    });
+  }
+
+  private playSound(sound: HTMLAudioElement): void {
+    sound.currentTime = 0;
+    sound.play().catch(() => {
+      // Browser may block sound until user has clicked/interacted once.
+    });
+  }
 
   selectDices(index: number) {
     const dice = this.dice();
