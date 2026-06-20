@@ -1,14 +1,14 @@
 <app-header></app-header>
 
 @if (dynamicGame()) {
-  <main class="flex-1 rounded-2xl h-full flex flex-col justify-start items-starts gap-2 px-4 overflow-hidden">
-    @if (dynamicGame()?.state === "lobby") {
+  <main class="flex-1 h-full flex flex-col justify-start items-starts gap-2 px-4 overflow-hidden">
+    @if (["lobby", "finished"].includes(dynamicGame()?.state!)) {
       <div class="flex items-center justify-start gap-2 mx-auto">
-        <button (click)="inviteFriend()">
+        <button (click)="inviteFriend()" class="flex-none">
           Invite friend
         </button>
 
-        <button (click)="startGame()" >
+        <button (click)="startGame()" class="flex-none">
           Start game
         </button>
       </div>
@@ -28,7 +28,7 @@
       </div>
     }
 
-    <div class="flex justify-start gap-2 mx-auto">
+    <div class="flex justify-start items-start gap-2 mx-auto">
       @for (dice of dice(); track $index) {
         <app-dice
           [value]="dice.value"
@@ -38,8 +38,8 @@
       }
     </div>
 
-    <div class="w-full overflow-auto pb-4">
-      <div class="w-fit flex mx-auto gap-2">
+    <div class="w-full pb-4 rounded-2xl overflow-auto">
+      <div class="w-fit flex gap-2 mx-auto">
         <table class="auto-table">
           <tbody>
             @for (row of basicRows(); track $index; let rowIndex = $index) {
@@ -59,8 +59,9 @@
           </tbody>
         </table>
 
-        <div class="flex gap-2 players">
-          @for (pair of playerRows(); track $index) {
+
+        @for (pair of playerRows(); track $index) {
+          <div class="flex gap-2">
             <div class="flex flex-col items-center">
               <!-- {{pair[0][0].text}} -->
               <table class="auto-table">
@@ -97,8 +98,8 @@
                 </tbody>
               </table>
             </div>
-          }
-        </div>
+          </div>
+        }
       </div>
     </div>
   </main>

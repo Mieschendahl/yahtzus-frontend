@@ -81,6 +81,7 @@ export class PlayPage implements OnInit {
 
     const userId = this.userId();
     const isActiveGame = dynamicGame.state === "playing";
+    const isFinishedGame = dynamicGame.state === "finished";
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
     const activePlayerId = dynamicGame.activeUserId;
     const hasRolled = (dynamicGame.rollCount ?? 0) > 0;
@@ -111,7 +112,7 @@ export class PlayPage implements OnInit {
           } else {
             cells.push(new CellUi(prettyNone("")));
           }
-        } else if (isActiveGame) {
+        } else if (isActiveGame || isFinishedGame) {
           if (colId === "upper bonus") {
             const bonus = getDerivedField("upper bonus", derivedValues)?.fieldValue!;
             if (bonus > 0) {
@@ -202,10 +203,11 @@ export class PlayPage implements OnInit {
   }
 
   async inviteFriend(): Promise<void> {
-    const url = new URL(window.location.href);
+    const url = new URL(window.location.origin);
     url.searchParams.delete('user');
     await navigator.clipboard.writeText(url.toString());
 
+    alert("Copied invite link");
     // this.messageService.add({
     //   severity: 'success',
     //   summary: 'Copied invite link',
