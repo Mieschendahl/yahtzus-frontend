@@ -84,9 +84,11 @@ export class PlayPage implements OnInit {
     const isActivePlayer = isActiveGame && dynamicGame.activeUserId === userId;
     const activePlayerId = dynamicGame.activeUserId;
     const hasRolled = (dynamicGame.rollCount ?? 0) > 0;
-    const fieldValues = getFieldValues(dice);
 
     players.forEach(({ userId: userId_, fields: fields_ }) => {
+      const hadYahtzee = (getField("yahtzee", fields_)?.fieldValue ?? 0) > 0;
+      const fieldValues = getFieldValues(dice, hadYahtzee);
+
       let cells = [new CellUi(userId_)];
       const derivedValues = getDerivedFieldValues(fields_);
       const pair: CellUi[][] = [];
@@ -204,7 +206,7 @@ export class PlayPage implements OnInit {
     url.searchParams.delete('user');
     await navigator.clipboard.writeText(url.toString());
 
-    alert("copied invite link");
+    alert("Copied Invite Link");
     // this.messageService.add({
     //   severity: 'success',
     //   summary: 'Copied invite link',

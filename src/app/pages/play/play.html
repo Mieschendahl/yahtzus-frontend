@@ -5,11 +5,11 @@
     @if (["lobby", "finished"].includes(dynamicGame()?.state!)) {
       <div class="flex items-center justify-start gap-2 mx-auto">
         <button (click)="inviteFriend()" class="flex-none">
-          Invite friend
+          Invite Friend
         </button>
 
         <button (click)="startGame()" class="flex-none">
-          Start game
+          Start Game
         </button>
       </div>
     }
