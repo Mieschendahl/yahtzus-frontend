@@ -1,3 +1,5 @@
+name: yahtzus-frontend
+
 services:
   yahtzus-test-frontend:
     build:
